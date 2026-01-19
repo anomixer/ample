@@ -7,3 +7,14 @@ embedded/SDL2-*
 build
 embedded/mame-data.tgz
 __pycache__
+
+# Windows Port MAME binaries and runtime data
+mame_bin/
+ample_win/mame_bin/
+nvram/
+cfg/
+diff/
+inp/
+comments/
+sta/
+*.ini
