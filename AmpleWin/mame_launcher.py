@@ -77,27 +77,18 @@ class MameLauncher:
 
         args.append("-skip_gameinfo")
         
-        valid_slots = self.get_valid_slots(machine)
         
         if slots:
             for slot_name, option in slots.items():
                 if option:
-                    # Validation: check if slot_name is recognized by MAME
-                    # We also allow 'ramsize' as it's very common and might be an argument
-                    if valid_slots is None or slot_name in valid_slots or slot_name == 'ramsize':
-                        args.extend([f"-{slot_name}", option])
-                    else:
-                        print(f"Skipping invalid slot: {slot_name}")
+                    # Pass the slot argument regardless of base machine validation
+                    args.extend([f"-{slot_name}", option])
         
-        valid_media = self.get_valid_media(machine)
         if media:
             for media_type, path in media.items():
                 if path:
-                    # Validation: only pass if MAME reports it as a valid media brief name
-                    if valid_media is None or media_type in valid_media:
-                        args.extend([f"-{media_type}", path])
-                    else:
-                        print(f"Skipping invalid media: {media_type}")
+                    # Pass the media argument regardless of base machine validation
+                    args.extend([f"-{media_type}", path])
                     
         if extra_options:
             for opt in extra_options:
