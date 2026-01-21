@@ -1774,7 +1774,8 @@ class AmpleMainWindow(QMainWindow):
             mame_bin_dir = os.path.dirname(self.launcher.mame_path)
             if os.path.exists(os.path.join(mame_bin_dir, "mame-vgm.exe")):
                 exe_display = "mame-vgm"
-
+        
+        import subprocess # Safety import for robust runtime
         self.cmd_preview.setText(subprocess.list2cmdline([exe_display] + args))
 
     def clear_grid_column(self, col):
