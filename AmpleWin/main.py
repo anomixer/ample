@@ -996,6 +996,15 @@ class AmpleMainWindow(QMainWindow):
         self.share_dir_check = QCheckBox("Share Directory")
         self.share_dir_path = QLineEdit()
         self.share_dir_path.setPlaceholderText("/path/to/directory/")
+        # Make the line edit clickable to open directory selector
+        def share_dir_mouse_press(event):
+            dir_path = QFileDialog.getExistingDirectory(self, "Select Shared Directory", self.share_dir_path.text() or os.getcwd())
+            if dir_path:
+                self.share_dir_path.setText(dir_path)
+            QLineEdit.mousePressEvent(self.share_dir_path, event)
+            
+        self.share_dir_path.mousePressEvent = share_dir_mouse_press
+        
         self.share_dir_check.stateChanged.connect(lambda: self.update_and_preview())
         self.share_dir_path.textChanged.connect(lambda: self.update_and_preview())
         
@@ -1210,9 +1219,29 @@ class AmpleMainWindow(QMainWindow):
         combo.setFixedHeight(22)
 
         
+        if slot.get('default') == "true" or slot.get('default') is True:
+            # Default logic handled via current_slots, but could be reinforced here
+            pass
+        
+        # Use QStandardItemModel for advanced item control (disabling items)
+        from PySide6.QtGui import QStandardItemModel, QStandardItem
+        model = QStandardItemModel()
+        combo.setModel(model)
+
         for opt in slot['options']:
             opt_desc = opt.get('description') or opt['value'] or "—None—"
-            combo.addItem(opt_desc, opt['value'])
+            item = QStandardItem(opt_desc)
+            item.setData(opt['value'], Qt.UserRole)
+            
+            # Check for disabled status in plist
+            # XML plist boolean is usually True/False in Python after loading
+            is_disabled = opt.get('disabled', False)
+            if is_disabled:
+                item.setEnabled(False)
+                # Optional: Add visual cue like "(Unsupported)" or color change if style sheet overrides gray
+                item.setForeground(QColor("#888888")) 
+            
+            model.appendRow(item)
         
         combo.blockSignals(True)
         val = self.current_slots.get(slot_name)

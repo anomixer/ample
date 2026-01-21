@@ -23,9 +23,14 @@ Focused on fixing critical bugs in the VGM recording workflow, ensuring extracti
     *   **Logic Completion**: Fixed a missing link in the launch engine where the "Shared Directory" path from the UI wasn't being passed to the actual MAME process.
     *   **Standardized Argument**: Updated from `-share` to the official `-share_directory` for maximum compatibility.
     *   **UI Bugfix**: Removed duplicate "Paths" tab initialization in the main window.
+    *   **Click-to-Browse**: Implemented a pop-up directory selector when clicking the Shared Directory path box, replacing manual entry.
+
+5.  **Smart Slot Validation (Mac Parity)**:
+    *   **Disabled State Support**: Ported the `disabled` logic from the Mac version. Slot options that are technically defined but marked as unsupported in the plist (e.g., specific SCSI cards on Apple IIgs) are now visually grayed out and unselectable in the dropdown menu.
+    *   **Prevention**: Prevents users from accidentally selecting incompatible hardware configurations that would cause MAME to crash or behave unexpectedly.
 
 ### 🚀 Current Project Status
-The VGM and Shared Directory workflows are now "Production Ready." Users can toggle recording and host file sharing with zero risk, while the UI is cleaner and fully synchronized with the launch engine.
+The VGM and Shared Directory workflows are now "Production Ready." The UI has reached a high level of fidelity with the Mac original, including subtle behaviors like smart slot validation and intuitive path selection.
 
 ---
 

@@ -35,7 +35,8 @@ This is a precision port of the macOS native [Ample](https://github.com/ksherloc
 *   **Software Library**:
     *   **Smart Filtering**: Automatically identifies supported media types (flop1, flop2, cass...) to match machine capabilities.
     *   **Search Overlay**: Integrated Mac-style search with auto-completion and full descriptive names.
-*   **Shared Directory**: Full parity with the Mac version, allowing direct host-to-emulator file sharing via the `-share_directory` argument.
+    *   **Compatibility Check**: Options marked as `disabled` in property lists (e.g. incompatible SCSI cards) are now correctly grayed out and unselectable, matching Mac behavior.
+*   **Shared Directory**: Full parity with the Mac version, allowing direct host-to-emulator file sharing via the `-share_directory` argument. (Includes click-to-browse support).
 *   **VGM Support (Advanced)**: Since modern MAME removed VGM support, AmpleWin implements a robust background workflow to download and configure the **MAME-VGM Mod (v0.280)**. It uses a non-destructive extraction process (`mame-vgm.exe`) to preserve your main MAME core while restoring high-fidelity music recording.
 
 ### 🪟 Windows-Specific Optimizations
