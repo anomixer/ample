@@ -26,19 +26,27 @@ This is a precision port of the macOS native [Ample](https://github.com/ksherloc
 | **Networking** | Apple VMNet Framework | **Npcap (WinPcap) / PCAP** | Standard networking via Npcap (no root fix needed) |
 | **Operating Logic** | Sticky Software Selection | **Sticky Software Selection** | Preserves compatible software selection when switching machines |
 
-## 🌟 Core Features & Windows Optimizations
+## 🌟 Key Features
 
+### 🍏 Faithful Mac Experience (Feature Parity)
+*   **Visual Precision**: 
+    *   **Resolution Scaling**: Precision support for **Window 1x-4x** modes with machine-specific aspect ratio heuristics (e.g., Apple II 4:3 correction).
+    *   **Square Pixels**: Specialized integer-scaling mode (e.g., 1120x768) to eliminate pixel shimmering.
 *   **Software Library**:
-    *   **Deep Parsing**: Directly parses MAME `hash/*.xml` lists without third-party databases.
-    *   **Mac-style Discovery**: Integrated search with auto-completion and **full descriptive name display**.
-    *   **Smart Filtering**: Automatically identifies supported media types (flop1, flop2, cass...) to prevent invalid launch parameters.
-*   **Performance & Environment**:
-    *   **Concurrent Downloading**: Multi-threaded system that can download all missing ROMs simultaneously.
-    *   **Clean Workspace**: All MAME outputs (nvram, cfg, sta) are strictly contained within `mame_bin`.
-*   **UI Perfection**:
-    *   **🍎 Classic Apple Icon Button**: Precision replica of the original Mac launch trigger.
-    *   **Full-Width Console Bar**: Simulates Mac status bar style with extended (4-line) MAME command preview.
-    *   **Adaptive Light/Dark Mode**: Real-time synchronization with Windows system theme ensures consistent visibility across all dialogs.
+    *   **Smart Filtering**: Automatically identifies supported media types (flop1, flop2, cass...) to match machine capabilities.
+    *   **Search Overlay**: Integrated Mac-style search with auto-completion and full descriptive names.
+*   **Shared Directory**: Full parity with the Mac version, allowing direct host-to-emulator file sharing via the `-share_directory` argument.
+*   **VGM Support (Advanced)**: Since modern MAME removed VGM support, AmpleWin implements a robust background workflow to download and configure the **MAME-VGM Mod (v0.280)**. It uses a non-destructive extraction process (`mame-vgm.exe`) to preserve your main MAME core while restoring high-fidelity music recording.
+
+### 🪟 Windows-Specific Optimizations
+*   **Performance**:
+    *   **Concurrent Downloading**: Multi-threaded system for high-speed ROM acquisition.
+    *   **Clean Workspace**: All MAME side-car files (nvram, cfg, sta) are strictly isolated within the `mame_bin` directory.
+    *   **Deferred XML Loading**: Major optimization for instant machine switching and search response.
+*   **UI Enhancements**:
+    *   **Adaptive Theme**: Real-time synchronization with Windows Light/Dark system theme.
+    *   **Command Preview**: Real-time 4-line console preview to monitor exactly what parameters are being passed to MAME.
+*   **Flexible Backend**: Full support for BGFX, OpenGL, Vulkan, and **DirectX 11/12** out of the box.
 
 ## 🛠️ Quick Start
 

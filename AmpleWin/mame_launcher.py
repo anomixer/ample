@@ -80,13 +80,13 @@ class MameLauncher:
         
         if slots:
             for slot_name, option in slots.items():
-                if option:
+                if option and not slot_name.startswith(':'):
                     # Pass the slot argument regardless of base machine validation
                     args.extend([f"-{slot_name}", option])
         
         if media:
             for media_type, path in media.items():
-                if path:
+                if path and not media_type.startswith(':'):
                     # Pass the media argument regardless of base machine validation
                     args.extend([f"-{media_type}", path])
                     
@@ -96,13 +96,13 @@ class MameLauncher:
                 
         return args
 
-    def launch(self, machine, slots=None, media=None, soft_list_args=None, extra_options=None):
+    def launch(self, machine, slots=None, media=None, soft_list_args=None, extra_options=None, alt_exe=None):
         args = self.build_args(machine, slots, media, soft_list_args, extra_options)
-        cmd = [self.mame_path] + args
-        print(f"Launching: {' '.join(cmd)}")
+        exe = alt_exe if alt_exe else self.mame_path
+        full_cmd = [exe] + args
+        print(f"Launching: {subprocess.list2cmdline(full_cmd)}")
         try:
-            subprocess.Popen(cmd, cwd=self.working_dir)
-            return True
+            return subprocess.Popen(full_cmd, cwd=self.working_dir)
         except Exception as e:
             print(f"Error launching MAME: {e}")
-            return False
+            return None

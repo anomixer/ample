@@ -1,5 +1,73 @@
 # Agent Task Audit Log - Ample Windows Port
 
+## 📅 Session: 2026-01-21 (Session 6)
+
+### 🎯 Objective: VGM Mod Stability & Extraction Safety
+Focused on fixing critical bugs in the VGM recording workflow, ensuring extraction safety, and improving UI feedback for the modded binary.
+
+### ✅ Key Achievements:
+
+1.  **VGM Mod Extraction Safety**:
+    *   **Anti-Overwrite Workflow**: Implemented a temporary directory strategy (`_vgm_temp`) during VGM Mod extraction. This ensures that the mod's `mame.exe` (v0.280) never accidentally overwrites the main official `mame.exe` (v0.284).
+    *   **Atomic Renaming**: The modded binary is now safely extracted, renamed to `mame-vgm.exe`, and moved to the destination in a single, non-destructive step.
+
+2.  **Command Line & UI Parity**:
+    *   **Explicit Recording Toggle**: Fixed a bug where `-vgmwrite 1` was missing from the console launch command. Recording is now correctly activated when using the modded binary.
+    *   **Dynamic UI Preview**: The 4-line console preview now correctly displays `mame-vgm` as the target executable when VGM recording is enabled and the mod is detected, matching actual runtime behavior.
+
+3.  **Thread & Lifecycle Stability**:
+    *   **Remove Safety**: Fixed a `ValueError: list.remove(x): x not in list` in the worker cleanup logic, ensuring the thread-safe management of background tasks even if signals fire twice.
+    *   **Worker Refactoring**: Rewrote the `VgmModDownloadWorker` and `VgmPostProcessWorker` logic to handle edge cases in file movement and process termination more gracefully.
+
+4.  **Shared Directory & UI Refinement**:
+    *   **Logic Completion**: Fixed a missing link in the launch engine where the "Shared Directory" path from the UI wasn't being passed to the actual MAME process.
+    *   **Standardized Argument**: Updated from `-share` to the official `-share_directory` for maximum compatibility.
+    *   **UI Bugfix**: Removed duplicate "Paths" tab initialization in the main window.
+
+### 🚀 Current Project Status
+The VGM and Shared Directory workflows are now "Production Ready." Users can toggle recording and host file sharing with zero risk, while the UI is cleaner and fully synchronized with the launch engine.
+
+---
+
+## 📅 Session: 2026-01-21 (Session 5)
+
+### 🎯 Objective: MAME Core Logic & Command Line Robustness
+Focused on improving the reliability of the MAME launch engine, specifically regarding dynamic slot media (CFFA2), multi-drive support, and shell-safe command construction.
+
+### ✅ Key Achievements:
+
+1.  **Relaxed Parameter Validation**:
+    *   **Dynamic Media Parity**: Removed strict `listmedia` validation in `MameLauncher` to allow secondary media types (like `hard1`, `hard2`) that only appear when a specific card (e.g., CFFA2) is plugged in.
+    *   **Internal Filter**: Implemented logic to automatically skip internal MAME node names starting with a colon (e.g., `-:prn`) to prevent "unknown option" errors.
+
+2.  **Multi-Drive & Storage Support**:
+    *   **Capping Removal**: Fixed a self-imposed limitation in `main.py` that forced `hard`, `cdrom`, and `cassette` counts to 1. 
+    *   **CFFA2 Ready**: AmpleWin now correctly supports machines/cards with multiple hard drives (`-hard1`, `-hard2`).
+
+3.  **Shell Integrity & Quoting**:
+    *   **Robust Quoting**: Integrated `subprocess.list2cmdline` for both the UI Command Preview and the actual process execution.
+    *   **Space Handling**: Guaranteed that file paths containing spaces are automatically wrapped in quotes (`""`), preventing launch failures on Windows.
+    *   **Path Normalization**: Implemented `os.path.normpath` for all MAME arguments (`-hard`, `-rompath`, etc.), ensuring consistent Windows-style backslashes (`\`).
+    *   **Command Line Streamlining**: Automated `mame.ini` generation via `mame -cc` upon MAME detection. This allows removing redundant path arguments (`-hashpath`, `-artpath`, etc.) from the command line, resulting in a much cleaner and more readable preview.
+    *   **VGM Support (Advanced)**: Since modern MAME removed VGM support, AmpleWin implements a robust background workflow to download and configure the **MAME-VGM Mod (v0.280)**. It uses a non-destructive extraction process (`mame-vgm.exe`) to preserve your main MAME core while restoring high-fidelity music recording, and automatically moves the resulting `.vgm` files to the user's desired path upon MAME exit.
+
+4.  **Resolution Scaling & Visual Parity**:
+    *   **Window Mode Scaling**: Implemented `-resolution` generation for scaling modes (2x, 3x, 4x) and **`-nomax`** for **Window 1x** mode to ensure consistent default sizing.
+    *   **Aspect Ratio Heuristic**: Integrated a 4:3 correction heuristic for non-square pixel machines (e.g., Apple II: 560x192 -> 1120x840 at 2x) to match macOS Ample behavior.
+    *   **Square Pixel Mode**: Implemented integer scaling for Apple II machines (e.g., **1120x768** at 2x) while adding **`-nounevenstretch`** to prevent pixel shimmering and maintain clarity.
+    *   **UI Expansion**: Added "Window 4x" option to the Video settings tab.
+    *   **Disk Sound Effects Integration**: Linked the "Disk Sound Effects" checkbox to the `-nosamples` argument, allowing MAME samples to load when sound effects are enabled.
+    *   **CPU Speed & Throttle UI Alignment**: Merged the Throttle checkbox into the CPU Speed dropdown as a "No Throttle" option, perfectly matching the original macOS Ample interface and logic.
+
+5.  **BGFX Effect Synchronization**:
+    *   **Enhanced Effects List**: Updated the video effects selection to support a standardized set of BGFX screen chains: **Unfiltered, HLSL, CRT Geometry, CRT Geometry Deluxe, LCD Grid, and Fighters**.
+    *   **Chain Mapping**: Implemented precise mapping between UI selection and MAME's `-bgfx_screen_chains` internal identifiers.
+
+### 🚀 Current Project Status
+The MAME launch engine is now significantly more robust and "intelligent." It handles complex slot configurations and multi-disk setups like CFFA2 without manual parameter tweaking, while maintaining a clean, error-free command line preview.
+
+---
+
 ## 📅 Session: 2026-01-19 (Session 4)
 
 ### 🎯 Objective: Real-time Adaptive Theming & UI Resilience

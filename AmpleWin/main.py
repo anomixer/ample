@@ -1,5 +1,6 @@
 import sys
 import os
+import subprocess
 import time
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QListWidget, QListWidgetItem, QLabel, 
@@ -8,18 +9,48 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QProgressBar, QMessageBox, QTabWidget, QTreeWidget, 
                              QTreeWidgetItem, QTextEdit, QGridLayout, QButtonGroup,
                              QSizePolicy, QMenu)
-from PySide6.QtCore import Qt, QSize, Signal, Slot, QSettings, QPoint, QRect, QTimer, QThreadPool, QRunnable, QEvent
+from PySide6.QtCore import Qt, QSize, Signal, Slot, QSettings, QPoint, QRect, QTimer, QThreadPool, QRunnable, QEvent, QThread
 from PySide6.QtGui import QFont, QIcon, QPalette, QColor, QCloseEvent, QPainter, QPainterPath
 
+import shutil
 from data_manager import DataManager
 from mame_launcher import MameLauncher
 from rom_manager import RomManager, DownloadWorker
-from mame_downloader import MameDownloadWorker
+from mame_downloader import MameDownloadWorker, VgmModDownloadWorker
 
 try:
     import winreg
 except ImportError:
     winreg = None
+
+class VgmPostProcessWorker(QThread):
+    finished = Signal()
+
+    def __init__(self, process, src_dir, rom_name, dest_path):
+        super().__init__()
+        self.process = process
+        self.src_dir = src_dir
+        self.rom_name = rom_name
+        self.dest_path = dest_path
+
+    def run(self):
+        # Wait for MAME to exit
+        self.process.wait()
+        
+        # MAME-VGM mod saves as <romname>_0.vgm in the working directory (mame_bin)
+        # Note: sometimes it might be <machine>_0.vgm
+        src_file = os.path.join(self.src_dir, f"{self.rom_name}_0.vgm")
+        if os.path.exists(src_file) and self.dest_path:
+            try:
+                dest_dir = os.path.dirname(self.dest_path)
+                if dest_dir: os.makedirs(dest_dir, exist_ok=True)
+                if os.path.exists(self.dest_path):
+                    os.remove(self.dest_path)
+                shutil.move(src_file, self.dest_path)
+                print(f"VGM captured and moved to: {self.dest_path}")
+            except Exception as e:
+                print(f"Failed to move VGM file: {e}")
+        self.finished.emit()
 
 class RomItemWidget(QWidget):
     def __init__(self, description, value, exists, parent=None):
@@ -866,7 +897,7 @@ class AmpleMainWindow(QMainWindow):
         row1.addSpacing(15)
         row1.addWidget(QLabel("Effects:"))
         self.video_effect = QComboBox()
-        self.video_effect.addItems(["Default", "None", "CRT Geometry Deluxe", "HLSL", "LCRT", "Scanlines"])
+        self.video_effect.addItems(["Default", "Unfiltered", "HLSL", "CRT Geometry", "CRT Geometry Deluxe", "LCD Grid", "Fighters"])
         row1.addWidget(self.video_effect)
         row1.addStretch()
         v_layout.addLayout(row1)
@@ -875,7 +906,7 @@ class AmpleMainWindow(QMainWindow):
         row2.setSpacing(10)
         row2.addWidget(QLabel("Window Mode:"))
         self.win_mode = QComboBox()
-        self.win_mode.addItems(["Window 1x", "Window 2x", "Window 3x", "Full Screen"])
+        self.win_mode.addItems(["Window 1x", "Window 2x", "Window 3x", "Window 4x", "Full Screen"])
         self.win_mode.setCurrentIndex(1)
         row2.addWidget(self.win_mode)
         
@@ -908,15 +939,9 @@ class AmpleMainWindow(QMainWindow):
         row_c1 = QHBoxLayout()
         row_c1.addWidget(QLabel("Speed:"))
         self.cpu_speed = QComboBox()
-        self.cpu_speed.addItems(["100%", "200%", "300%", "400%", "500%"])
+        self.cpu_speed.addItems(["100%", "200%", "300%", "400%", "500%", "No Throttle"])
         self.cpu_speed.currentIndexChanged.connect(lambda: self.update_and_preview())
         row_c1.addWidget(self.cpu_speed)
-        
-        row_c1.addSpacing(15)
-        self.throttle = QCheckBox("Throttle")
-        self.throttle.setChecked(True)
-        self.throttle.stateChanged.connect(lambda: self.update_and_preview())
-        row_c1.addWidget(self.throttle)
         
         row_c1.addStretch()
         c_layout.addLayout(row_c1)
@@ -954,6 +979,10 @@ class AmpleMainWindow(QMainWindow):
         add_av_row("Generate AVI", "avi")
         add_av_row("Generate WAV", "wav")
         add_av_row("Generate VGM", "vgm")
+        # Override connection for VGM to handle Mod check
+        self.vgm_check.stateChanged.disconnect()
+        self.vgm_check.stateChanged.connect(self.on_vgm_check_changed)
+        
         av_layout.addStretch()
         self.tabs.addTab(av_tab, "A/V")
 
@@ -974,7 +1003,6 @@ class AmpleMainWindow(QMainWindow):
         row_p1.addWidget(self.share_dir_path, 1)
         p_layout.addLayout(row_p1)
         p_layout.addStretch()
-        self.tabs.addTab(paths_tab, "Paths")
         self.mame_path_label = QLabel(f"MAME: {self.launcher.mame_path}")
         p_layout.addWidget(self.mame_path_label)
         p_layout.addStretch()
@@ -1341,11 +1369,9 @@ class AmpleMainWindow(QMainWindow):
                             
         aggregate_media(self.current_machine_data, is_root=True)
 
-        # UI FIX: Cap counts and cleanup
+        # UI FIX: Cleanup empty entries
         for k in ['hard', 'cdrom', 'cassette']:
-            if k in total_media and total_media[k] > 0:
-                total_media[k] = 1
-            else:
+            if k in total_media and total_media[k] <= 0:
                 total_media.pop(k, None)
         return total_media
 
@@ -1629,7 +1655,7 @@ class AmpleMainWindow(QMainWindow):
         if not self.selected_machine: return
         
         # Filter sticky media to only what's supported by current machine/slots
-        filtered_media = self.get_filtered_media()
+        filtered_media = {k: os.path.normpath(v) for k, v in self.get_filtered_media().items()}
         
         # Softlist selection
         soft_list_args = []
@@ -1645,8 +1671,48 @@ class AmpleMainWindow(QMainWindow):
         win_mode = self.win_mode.currentText()
         if "Window" in win_mode:
             args.append("-window")
+            # Handle scaling (2x, 3x, 4x)
+            try:
+                # Extract multiplier from "Window 2x" -> 2
+                multiplier_str = win_mode.split("x")[0].split()[-1]
+                multiplier = int(multiplier_str)
+            except (IndexError, ValueError):
+                multiplier = 1
+
+            if multiplier > 1:
+                res = self.current_machine_data.get('resolution')
+                if res and len(res) >= 2:
+                    base_w = res[0]
+                    base_h = res[1]
+                    
+                    if self.square_pixels.isChecked():
+                        if base_w / base_h > 2.0:
+                            # Apple II heuristic for Square Pixels (integer scale)
+                            # Base Square (1x) is 560x384 (1x width, 2x height)
+                            # User wants Window 2x -> 1120x768
+                            target_w = base_w * multiplier
+                            target_h = base_h * 2 * multiplier
+                        else:
+                            # Standard square pixel machine
+                            target_w = base_w * multiplier
+                            target_h = base_h * multiplier
+                    else:
+                        # 4:3 Heuristic for non-square pixel machines like Apple II
+                        if base_w / base_h > 2.0:
+                            eff_h = base_w * 3 // 4
+                        else:
+                            eff_h = base_h
+                        target_w = base_w * multiplier
+                        target_h = eff_h * multiplier
+                    
+                    args.extend(["-resolution", f"{target_w}x{target_h}"])
+            else:
+                args.append("-nomax")
         else:
             args.extend(["-nowindow", "-maximize"])
+
+        if self.square_pixels.isChecked():
+            args.extend(["-nounevenstretch"])
 
         if self.use_bgfx.isChecked():
             args.extend(["-video", "bgfx"])
@@ -1655,26 +1721,36 @@ class AmpleMainWindow(QMainWindow):
                 args.extend(["-bgfx_backend", backend])
             
             effect = self.video_effect.currentText()
-            effect_map = {"CRT Geometry Deluxe": "crt-geom-deluxe", "HLSL": "hlsl", "LCRT": "lcrt", "Scanlines": "scanlines"}
+            effect_map = {
+                "Unfiltered": "unfiltered",
+                "HLSL": "hlsl",
+                "CRT Geometry": "crt-geom",
+                "CRT Geometry Deluxe": "crt-geom-deluxe",
+                "LCD Grid": "lcd-grid",
+                "Fighters": "fighters"
+            }
             if effect in effect_map:
                 args.extend(["-bgfx_screen_chains", effect_map[effect]])
         
         # CPU settings
-        if not self.throttle.isChecked():
-            args.append("-nothrottle")
-        
         speed_text = self.cpu_speed.currentText()
-        if speed_text != "100%":
-            speed_val = float(speed_text.replace("%", "")) / 100.0
-            args.extend(["-speed", str(speed_val)])
+        if speed_text == "No Throttle":
+            args.append("-nothrottle")
+        elif speed_text != "100%":
+            try:
+                speed_val = float(speed_text.replace("%", "")) / 100.0
+                args.extend(["-speed", str(speed_val)])
+            except ValueError:
+                pass
             
         if self.rewind.isChecked():
             args.append("-rewind")
         if self.debugger.isChecked():
             args.append("-debug")
             
-        # Default MAME behaviors to match Mac Ample
-        args.append("-nosamples")
+        # Default MAME behaviors to match Mac Ample: use samples only if disk sounds enabled
+        if not self.disk_sounds.isChecked():
+            args.append("-nosamples")
             
         # A/V settings
         if self.avi_check.isChecked() and self.avi_path.text():
@@ -1682,29 +1758,24 @@ class AmpleMainWindow(QMainWindow):
         if hasattr(self, 'wav_check') and self.wav_check.isChecked() and self.wav_path.text():
             args.extend(["-wavwrite", self.wav_path.text()])
         if hasattr(self, 'vgm_check') and self.vgm_check.isChecked() and self.vgm_path.text():
-            args.extend(["-vgmwrite", self.vgm_path.text()])
+            # VGM Mod version only supports -vgmwrite 1
+            args.extend(["-vgmwrite", "1"])
         
         if self.capture_mouse.isChecked():
             args.append("-mouse")
         
-        # Paths Settings
         if hasattr(self, 'share_dir_check') and self.share_dir_check.isChecked() and self.share_dir_path.text():
-            args.extend(["-share", self.share_dir_path.text()])
+            args.extend(["-share_directory", os.path.normpath(self.share_dir_path.text())])
 
-        # Path Setup
-        mame_bin_dir = os.path.dirname(self.launcher.mame_path)
-        if mame_bin_dir and mame_bin_dir != ".":
-             hash_path = os.path.join(mame_bin_dir, "hash")
-             self.data_manager.hash_path = hash_path
-             args.extend(["-hashpath", hash_path])
-             args.extend(["-bgfx_path", os.path.join(mame_bin_dir, "bgfx")])
-             args.extend(["-artpath", os.path.join(mame_bin_dir, "artwork")])
-             args.extend(["-pluginspath", os.path.join(mame_bin_dir, "plugins")])
-             args.extend(["-languagepath", os.path.join(mame_bin_dir, "language")])
-             args.extend(["-ctrlrpath", os.path.join(mame_bin_dir, "ctrlr")])
+        # Path Setup (Minimalist: redundant paths are now in mame.ini)
+        # Determine display executable
+        exe_display = "mame"
+        if hasattr(self, 'vgm_check') and self.vgm_check.isChecked():
+            mame_bin_dir = os.path.dirname(self.launcher.mame_path)
+            if os.path.exists(os.path.join(mame_bin_dir, "mame-vgm.exe")):
+                exe_display = "mame-vgm"
 
-        args.extend(["-rompath", self.roms_dir])
-        self.cmd_preview.setText("mame " + " ".join(args))
+        self.cmd_preview.setText(subprocess.list2cmdline([exe_display] + args))
 
     def clear_grid_column(self, col):
         # Extremely aggressive clearing to prevent widget ghosting
@@ -1816,6 +1887,7 @@ class AmpleMainWindow(QMainWindow):
         for p in potential_paths:
             if os.path.exists(p) and os.path.isfile(p):
                 self.launcher.mame_path = p
+                self.ensure_mame_ini(p)
                 if label:
                     label.setText(f"MAME: {p} <span style='color: #2ecc71;'>✅</span>")
                     label.setTextFormat(Qt.RichText)
@@ -1828,6 +1900,18 @@ class AmpleMainWindow(QMainWindow):
             label.setTextFormat(Qt.RichText)
         return False
 
+    def ensure_mame_ini(self, mame_path):
+        """Generate mame.ini in the background if it doesn't exist."""
+        mame_dir = os.path.dirname(mame_path)
+        ini_path = os.path.join(mame_dir, "mame.ini")
+        if not os.path.exists(ini_path):
+            print(f"Generating mame.ini in {mame_dir}...")
+            try:
+                # Run mame -cc in the mame directory
+                subprocess.run([mame_path, "-cc"], cwd=mame_dir, check=True, capture_output=True)
+            except Exception as e:
+                print(f"Failed to generate mame.ini: {e}")
+
     def launch_mame(self):
         if hasattr(self, 'sw_popup') and self.sw_popup:
             self.sw_popup.hide()
@@ -1836,28 +1920,51 @@ class AmpleMainWindow(QMainWindow):
         # Determine the MAME binary directory
         mame_bin_dir = os.path.dirname(self.launcher.mame_path)
         
-        # Gather all options from UI
-        extra_opts = [
-            "-rompath", self.roms_dir,
-            "-hashpath", os.path.join(mame_bin_dir, "hash"),
-            "-bgfx_path", os.path.join(mame_bin_dir, "bgfx"),
-            "-artpath", os.path.join(mame_bin_dir, "artwork"),
-            "-pluginspath", os.path.join(mame_bin_dir, "plugins"),
-            "-languagepath", os.path.join(mame_bin_dir, "language"),
-            "-ctrlrpath", os.path.join(mame_bin_dir, "ctrlr"),
-        ]
+        # Gather all options from UI (Minimalist: redundant paths are now in mame.ini)
+        extra_opts = []
         
         # Window Mode logic
         win_mode = self.win_mode.currentText()
         if "Window" in win_mode:
             extra_opts.append("-window")
-            # For "Window 2x", we should ideally set -scale 2, 
-            # but MAME handled window scale better with -window -nomax
-            # and potentially -resolution if we have machine info.
-            # Simplified: just -window is a good start.
+            # Handle scaling (2x, 3x, 4x)
+            try:
+                multiplier_str = win_mode.split("x")[0].split()[-1]
+                multiplier = int(multiplier_str)
+            except (IndexError, ValueError):
+                multiplier = 1
+
+            if multiplier > 1:
+                res = self.current_machine_data.get('resolution')
+                if res and len(res) >= 2:
+                    base_w = res[0]
+                    base_h = res[1]
+                    
+                    if self.square_pixels.isChecked():
+                        if base_w / base_h > 2.0:
+                            # Apple II heuristic for Square Pixels (integer scale)
+                            # 2x is 1120x768
+                            target_w = base_w * multiplier
+                            target_h = base_h * 2 * multiplier
+                        else:
+                            target_w = base_w * multiplier
+                            target_h = base_h * multiplier
+                    else:
+                        if base_w / base_h > 2.0:
+                            eff_h = base_w * 3 // 4
+                        else:
+                            eff_h = base_h
+                        target_w = base_w * multiplier
+                        target_h = eff_h * multiplier
+                    
+                    extra_opts.extend(["-resolution", f"{target_w}x{target_h}"])
+            else:
+                extra_opts.append("-nomax")
         else:
-            extra_opts.append("-nowindow")
-            extra_opts.append("-maximize")
+            extra_opts.extend(["-nowindow", "-maximize"])
+
+        if self.square_pixels.isChecked():
+            extra_opts.extend(["-nounevenstretch"])
 
         # BGFX logic
         if self.use_bgfx.isChecked():
@@ -1869,22 +1976,26 @@ class AmpleMainWindow(QMainWindow):
             # Effects
             effect = self.video_effect.currentText()
             effect_map = {
-                "CRT Geometry Deluxe": "crt-geom-deluxe",
+                "Unfiltered": "unfiltered",
                 "HLSL": "hlsl",
-                "LCRT": "lcrt",
-                "Scanlines": "scanlines"
+                "CRT Geometry": "crt-geom",
+                "CRT Geometry Deluxe": "crt-geom-deluxe",
+                "LCD Grid": "lcd-grid",
+                "Fighters": "fighters"
             }
             if effect in effect_map:
                 extra_opts.extend(["-bgfx_screen_chains", effect_map[effect]])
 
         # CPU settings
-        if not self.throttle.isChecked():
-            extra_opts.append("-nothrottle")
-            
         speed_text = self.cpu_speed.currentText()
-        if speed_text != "100%":
-            speed_val = float(speed_text.replace("%", "")) / 100.0
-            extra_opts.extend(["-speed", str(speed_val)])
+        if speed_text == "No Throttle":
+            extra_opts.append("-nothrottle")
+        elif speed_text != "100%":
+            try:
+                speed_val = float(speed_text.replace("%", "")) / 100.0
+                extra_opts.extend(["-speed", str(speed_val)])
+            except ValueError:
+                pass
 
         if self.rewind.isChecked():
             extra_opts.append("-rewind")
@@ -1892,22 +2003,34 @@ class AmpleMainWindow(QMainWindow):
             extra_opts.append("-debug")
 
         # Default MAME behaviors to match Mac Ample
-        extra_opts.append("-nosamples")
+        if not self.disk_sounds.isChecked():
+            extra_opts.append("-nosamples")
         
         # Capture mouse
         if self.capture_mouse.isChecked():
             extra_opts.append("-mouse")
 
         # AVI/WAV/VGM
+        vgm_exe = None
         if self.avi_check.isChecked() and self.avi_path.text():
-            extra_opts.extend(["-aviwrite", self.avi_path.text()])
+            extra_opts.extend(["-aviwrite", os.path.normpath(self.avi_path.text())])
         if self.wav_check.isChecked() and self.wav_path.text():
-            extra_opts.extend(["-wavwrite", self.wav_path.text()])
+            extra_opts.extend(["-wavwrite", os.path.normpath(self.wav_path.text())])
         if self.vgm_check.isChecked() and self.vgm_path.text():
-            extra_opts.extend(["-vgmwrite", self.vgm_path.text()])
+            target_vgm_exe = os.path.join(mame_bin_dir, "mame-vgm.exe")
+            if os.path.exists(target_vgm_exe):
+                vgm_exe = target_vgm_exe
+                # VGM Mod version ONLY supports -vgmwrite 1 to toggle recording
+                extra_opts.extend(["-vgmwrite", "1"])
+            else:
+                extra_opts.extend(["-vgmwrite", os.path.normpath(self.vgm_path.text())])
+
+        # Share Directory
+        if self.share_dir_check.isChecked() and self.share_dir_path.text():
+            extra_opts.extend(["-share_directory", os.path.normpath(self.share_dir_path.text())])
 
         # Filter sticky media to only what's supported
-        filtered_media = self.get_filtered_media()
+        filtered_media = {k: os.path.normpath(v) for k, v in self.get_filtered_media().items()}
         
         # Softlist selection
         soft_list_args = []
@@ -1915,7 +2038,73 @@ class AmpleMainWindow(QMainWindow):
             soft_list_args.append(self.selected_software)
         
         self.launcher.working_dir = mame_bin_dir
-        self.launcher.launch(self.selected_machine, self.current_slots, filtered_media, soft_list_args, extra_opts)
+        proc = self.launcher.launch(self.selected_machine, self.current_slots, filtered_media, soft_list_args, extra_opts, alt_exe=vgm_exe)
+        
+        if proc and vgm_exe:
+            # If using VGM Mod, we need to move the file after exit
+            worker = VgmPostProcessWorker(proc, mame_bin_dir, self.selected_machine, self.vgm_path.text())
+            worker.finished.connect(lambda: self.active_workers.remove(worker) if worker in self.active_workers else None)
+            self.active_workers.append(worker)
+            worker.start()
+
+    def on_vgm_check_changed(self, state):
+        if state == Qt.Checked.value:
+            mame_bin_dir = os.path.dirname(self.launcher.mame_path)
+            vgm_exe = os.path.join(mame_bin_dir, "mame-vgm.exe")
+            
+            if not os.path.exists(vgm_exe):
+                # Request download
+                res = QMessageBox.question(self, "VGM Support Required",
+                    "VGM (Video Game Music) support was removed from MAME after v0.163.\n\n"
+                    "The community-supported VGM Mod is available up to v0.280.\n"
+                    "Would you like to download and use this version for VGM recording?",
+                    QMessageBox.Yes | QMessageBox.No)
+                
+                if res == QMessageBox.Yes:
+                    self.download_vgm_mod(mame_bin_dir)
+                else:
+                    # Uncheck if user said no
+                    self.vgm_check.setChecked(False)
+        
+        self.update_and_preview()
+
+    def download_vgm_mod(self, dest_dir):
+        # reuse existing progress dialog or create new
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Downloading VGM Mod")
+        dialog.setFixedSize(400, 150)
+        self.apply_premium_theme() # refresh styles
+        
+        layout = QVBoxLayout(dialog)
+        label = QLabel("Initializing download...")
+        layout.addWidget(label)
+        
+        pbar = QProgressBar()
+        layout.addWidget(pbar)
+        
+        status = QLabel("")
+        layout.addWidget(status)
+
+        worker = VgmModDownloadWorker(dest_dir)
+        worker.progress.connect(lambda d, t: pbar.setValue(int(d*100/t)) if t>0 else None)
+        worker.status.connect(label.setText)
+        worker.finished.connect(lambda s, p: self.on_vgm_dl_finished(worker, s, p, label, dialog))
+        
+        self.active_workers.append(worker)
+        worker.start()
+        dialog.exec()
+
+    def on_vgm_dl_finished(self, worker, success, path, label, dialog):
+        if worker in self.active_workers:
+            self.active_workers.remove(worker)
+        
+        if success:
+            QMessageBox.information(self, "Success", "MAME VGM Mod has been installed as mame-vgm.exe")
+            dialog.accept()
+        else:
+            QMessageBox.critical(self, "Error", f"Failed to download VGM Mod: {path}")
+            self.vgm_check.setChecked(False)
+            dialog.reject()
 
     def load_persistent_settings(self):
         """Restore window geometry and splitter state."""
