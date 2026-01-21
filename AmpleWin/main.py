@@ -1003,9 +1003,6 @@ class AmpleMainWindow(QMainWindow):
         row_p1.addWidget(self.share_dir_path, 1)
         p_layout.addLayout(row_p1)
         p_layout.addStretch()
-        self.mame_path_label = QLabel(f"MAME: {self.launcher.mame_path}")
-        p_layout.addWidget(self.mame_path_label)
-        p_layout.addStretch()
         self.tabs.addTab(paths_tab, "Paths")
 
     def update_and_preview(self):
