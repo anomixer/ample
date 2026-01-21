@@ -1,5 +1,29 @@
 # Agent Task Audit Log - Ample Windows Port
 
+## 📅 Session: 2026-01-22 (Session 7)
+
+### 🎯 Objective: User Freedom & flexible Command Control
+Focused on giving the user complete control over the MAME launch command and ensuring a cleaner default state for machine slots.
+
+### ✅ Key Achievements:
+
+1.  **Editable Command Console**:
+    *   **Unlocked Preview**: The "Command Preview" text box is no longer read-only.
+    *   **Source of Truth**: The Launch button now executes *exactly* what is typed in this box. Users can manually add, remove, or edit arguments (e.g., adding `-verbose` or removing unwanted flags) before launching.
+
+2.  **Launch Engine Integrity**:
+    *   **Absolute Path Resolution**: Implemented `shlex` parsing to read the user's manual command string. It automatically detects the command (`mame` or `mame-vgm`) and resolves it to the absolute system path to fix `[WinError 2]` on Windows.
+    *   **VGM Pathing**: Logic retains awareness of VGM Mod capabilities even when launching from a custom text string.
+
+3.  **Cleaner Default State**:
+    *   **Slot Neutrality**: Removed the aggressive fallback logic that forced the first available option for slots without a default value.
+    *   **Phantom Args Clarified**: This eliminates confusing arguments like `-fdc:0 525` appearing automatically, ensuring MAME starts with its internal defaults unless the local configuration explicitly overrides them.
+
+### 🚀 Current Project Status
+The app now respects "Power User" workflows. You can use the UI for quick setup, then fine-tune the command line manually. The codebase structure is being finalized.
+
+---
+
 ## 📅 Session: 2026-01-21 (Session 6)
 
 ### 🎯 Objective: VGM Mod Stability & Extraction Safety

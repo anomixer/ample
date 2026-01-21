@@ -68,11 +68,16 @@ To simulate networking hardware like **Uthernet II**, Windows requires [Npcap](h
 
 ## 📂 Project Structure
 
-*   `main.py`: Core UI and logic, handles rendering and settings persistence.
-*   `data_manager.py`: Parses `.plist` resources and MAME `.xml` software lists.
-*   `mame_launcher.py`: Crucial component for dynamic slot validation and command construction.
-*   `rom_manager.py`: Manages system files under `mame_bin\roms`.
-*   `mame_downloader.py`: Automatic engine for downloading and extracting MAME.
+| File/Directory | Description |
+| :--- | :--- |
+| **`AmpleWin.bat`** | **Start Here**. Auto-setup script (installs Python deps & runs app). |
+| `main.py` | Application entry point, UI rendering, and event loop. |
+| `data_manager.py` | Parser for `.plist` machine definitions and MAME `.xml` software lists. |
+| `mame_launcher.py` | Command-line builder and process manager. |
+| `rom_manager.py` | Management and multi-threaded downloading of system ROMs. |
+| `mame_downloader.py` | Automated MAME / VGM Mod downloader and extractor. |
+| `mame_bin/` | Isolated directory for MAME executable, ROMs, and config files. |
+| `Agent.md` | Development log and session history. |
 
 ## 📝 Acknowledgments
 

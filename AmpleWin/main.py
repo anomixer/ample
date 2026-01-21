@@ -855,7 +855,7 @@ class AmpleMainWindow(QMainWindow):
 
         # 4. Command Preview (Full Width Bottom - Mac Style)
         self.cmd_preview = QTextEdit()
-        self.cmd_preview.setReadOnly(True)
+        self.cmd_preview.setReadOnly(False)
         self.cmd_preview.setObjectName("CommandPreview")
         self.cmd_preview.setFixedHeight(65)  # Approx 4 lines
         self.cmd_preview.setAcceptRichText(False)
@@ -1080,9 +1080,9 @@ class AmpleMainWindow(QMainWindow):
                             best_val = opt.get('value')
                             break
                     
-                    # Target 2: If NO option is marked default at all, pick the first one
-                    if best_val is None and options:
-                        best_val = options[0].get('value')
+                    # Target 2: If NO option is marked default at all, do NOT force the first one.
+                    # We leave it unset so it doesn't clutter the command line or override MAME defaults.
+                    pass
                     
                     if best_val is not None:
                         self.current_slots[slot_name] = best_val
@@ -1942,137 +1942,61 @@ class AmpleMainWindow(QMainWindow):
     def launch_mame(self):
         if hasattr(self, 'sw_popup') and self.sw_popup:
             self.sw_popup.hide()
-        if not self.selected_machine: return
+        
+        # Get command from preview console (User Input is Source of Truth)
+        cmd_str = self.cmd_preview.toPlainText().strip()
+        if not cmd_str: return
+        
+        print(f"Launching custom command: {cmd_str}")
         
         # Determine the MAME binary directory
         mame_bin_dir = os.path.dirname(self.launcher.mame_path)
-        
-        # Gather all options from UI (Minimalist: redundant paths are now in mame.ini)
-        extra_opts = []
-        
-        # Window Mode logic
-        win_mode = self.win_mode.currentText()
-        if "Window" in win_mode:
-            extra_opts.append("-window")
-            # Handle scaling (2x, 3x, 4x)
-            try:
-                multiplier_str = win_mode.split("x")[0].split()[-1]
-                multiplier = int(multiplier_str)
-            except (IndexError, ValueError):
-                multiplier = 1
 
-            if multiplier > 1:
-                res = self.current_machine_data.get('resolution')
-                if res and len(res) >= 2:
-                    base_w = res[0]
-                    base_h = res[1]
-                    
-                    if self.square_pixels.isChecked():
-                        if base_w / base_h > 2.0:
-                            # Apple II heuristic for Square Pixels (integer scale)
-                            # 2x is 1120x768
-                            target_w = base_w * multiplier
-                            target_h = base_h * 2 * multiplier
-                        else:
-                            target_w = base_w * multiplier
-                            target_h = base_h * multiplier
-                    else:
-                        if base_w / base_h > 2.0:
-                            eff_h = base_w * 3 // 4
-                        else:
-                            eff_h = base_h
-                        target_w = base_w * multiplier
-                        target_h = eff_h * multiplier
-                    
-                    extra_opts.extend(["-resolution", f"{target_w}x{target_h}"])
-            else:
-                extra_opts.append("-nomax")
-        else:
-            extra_opts.extend(["-nowindow", "-maximize"])
-
-        if self.square_pixels.isChecked():
-            extra_opts.extend(["-nounevenstretch"])
-
-        # BGFX logic
-        if self.use_bgfx.isChecked():
-            extra_opts.extend(["-video", "bgfx"])
-            backend = self.bgfx_backend.currentText().lower().replace(" ", "")
-            if backend != "default":
-                extra_opts.extend(["-bgfx_backend", backend])
+        # Parse command string into arguments list safely
+        import shlex
+        try:
+            # posix=False is important for Windows paths (keeps backslashes)
+            args = shlex.split(cmd_str, posix=False)
+        except ValueError:
+            # Fallback for unbalanced quotes
+            args = cmd_str.split()
             
-            # Effects
-            effect = self.video_effect.currentText()
-            effect_map = {
-                "Unfiltered": "unfiltered",
-                "HLSL": "hlsl",
-                "CRT Geometry": "crt-geom",
-                "CRT Geometry Deluxe": "crt-geom-deluxe",
-                "LCD Grid": "lcd-grid",
-                "Fighters": "fighters"
-            }
-            if effect in effect_map:
-                extra_opts.extend(["-bgfx_screen_chains", effect_map[effect]])
+        if not args: return
 
-        # CPU settings
-        speed_text = self.cpu_speed.currentText()
-        if speed_text == "No Throttle":
-            extra_opts.append("-nothrottle")
-        elif speed_text != "100%":
-            try:
-                speed_val = float(speed_text.replace("%", "")) / 100.0
-                extra_opts.extend(["-speed", str(speed_val)])
-            except ValueError:
-                pass
+        try:
+            # Resolve executable path from bare filename to absolute path
+            # This fixes [WinError 2] where Popen(cwd=...) fails to find bare 'mame'
+            exe_cmd = args[0].lower()
+            vgm_exe = None
+            
+            # Start with whatever the user provided
+            target_exe_path = args[0]
+            
+            if exe_cmd in ["mame", "mame.exe"]:
+                target_exe_path = self.launcher.mame_path
+            elif exe_cmd in ["mame-vgm", "mame-vgm.exe"]:
+                 path_vgm = os.path.join(mame_bin_dir, "mame-vgm.exe")
+                 if os.path.exists(path_vgm):
+                     target_exe_path = path_vgm
+                     vgm_exe = path_vgm
+            
+            # Update the binary path in the args list
+            args[0] = target_exe_path
 
-        if self.rewind.isChecked():
-            extra_opts.append("-rewind")
-        if self.debugger.isChecked():
-            extra_opts.append("-debug")
+            # Pass the LIST of args to Popen. 
+            # subprocess will handle quoting for Windows automatically.
+            proc = subprocess.Popen(args, cwd=mame_bin_dir)
+            
+            if proc and vgm_exe:
+                # If using VGM Mod, we need to move the file after exit
+                worker = VgmPostProcessWorker(proc, mame_bin_dir, self.selected_machine, self.vgm_path.text())
+                worker.finished.connect(lambda: self.active_workers.remove(worker) if worker in self.active_workers else None)
+                self.active_workers.append(worker)
+                worker.start()
 
-        # Default MAME behaviors to match Mac Ample
-        if not self.disk_sounds.isChecked():
-            extra_opts.append("-nosamples")
-        
-        # Capture mouse
-        if self.capture_mouse.isChecked():
-            extra_opts.append("-mouse")
-
-        # AVI/WAV/VGM
-        vgm_exe = None
-        if self.avi_check.isChecked() and self.avi_path.text():
-            extra_opts.extend(["-aviwrite", os.path.normpath(self.avi_path.text())])
-        if self.wav_check.isChecked() and self.wav_path.text():
-            extra_opts.extend(["-wavwrite", os.path.normpath(self.wav_path.text())])
-        if self.vgm_check.isChecked() and self.vgm_path.text():
-            target_vgm_exe = os.path.join(mame_bin_dir, "mame-vgm.exe")
-            if os.path.exists(target_vgm_exe):
-                vgm_exe = target_vgm_exe
-                # VGM Mod version ONLY supports -vgmwrite 1 to toggle recording
-                extra_opts.extend(["-vgmwrite", "1"])
-            else:
-                extra_opts.extend(["-vgmwrite", os.path.normpath(self.vgm_path.text())])
-
-        # Share Directory
-        if self.share_dir_check.isChecked() and self.share_dir_path.text():
-            extra_opts.extend(["-share_directory", os.path.normpath(self.share_dir_path.text())])
-
-        # Filter sticky media to only what's supported
-        filtered_media = {k: os.path.normpath(v) for k, v in self.get_filtered_media().items()}
-        
-        # Softlist selection
-        soft_list_args = []
-        if self.selected_software:
-            soft_list_args.append(self.selected_software)
-        
-        self.launcher.working_dir = mame_bin_dir
-        proc = self.launcher.launch(self.selected_machine, self.current_slots, filtered_media, soft_list_args, extra_opts, alt_exe=vgm_exe)
-        
-        if proc and vgm_exe:
-            # If using VGM Mod, we need to move the file after exit
-            worker = VgmPostProcessWorker(proc, mame_bin_dir, self.selected_machine, self.vgm_path.text())
-            worker.finished.connect(lambda: self.active_workers.remove(worker) if worker in self.active_workers else None)
-            self.active_workers.append(worker)
-            worker.start()
+        except Exception as e:
+            print(f"Error launching MAME: {e}")
+            QMessageBox.critical(self, "Launch Error", f"Failed to launch command:\n{e}")
 
     def on_vgm_check_changed(self, state):
         if state == Qt.Checked.value:

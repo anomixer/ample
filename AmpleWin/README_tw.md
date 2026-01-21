@@ -66,13 +66,18 @@
 
 若要在模擬器中使用 **Uthernet II** 等網路卡硬體，在 Windows 環境下需要安裝 [Npcap](https://nmap.org/npcap/) (安裝時請勾選 "WinPcap compatible mode")。與 macOS 版本不同，Windows 是透過網卡驅動程式處理硬體存取，因此不需要額外的「權限修復 (Fix Permissions)」程序。
 
-## 📂 專案結構
+## 📂 Project Structure (專案結構)
 
-*   `main.py`：核心 UI 與邏輯，負責介面算繪與持久化設定。
-*   `data_manager.py`：解析 `.plist` 資源檔與 MAME 的 `.xml` 軟體清單。
-*   `mame_launcher.py`：關鍵組件，負責動態驗證機器插槽並建構最優化的命令列參數。
-*   `rom_manager.py`：管理 `mame_bin\roms` 下的系統檔案。
-*   `mame_downloader.py`：全自動 MAME 主程式下載與解壓引擎。
+| 檔案/目錄 | 說明 |
+| :--- | :--- |
+| **`AmpleWin.bat`** | **啟動腳本**。自動安裝依賴套件並執行主程式。 |
+| `main.py` | 應用程式入口，處理 UI 渲染與主要邏輯。 |
+| `data_manager.py` | 負責解析 `.plist` 機器定義檔與 MAME `.xml` 軟體列表。 |
+| `mame_launcher.py` | MAME 指令建構器與執行序管理器。 |
+| `rom_manager.py` | 系統 ROM 的管理與多執行緒下載引擎。 |
+| `mame_downloader.py` | 自動化 MAME 核心與 VGM Mod 下載解壓工具。 |
+| `mame_bin/` | 隔離的 MAME 工作目錄，存放執行檔、ROMs 與設定檔。 |
+| `Agent.md` | 開發日誌與任務記錄。 |
 
 ## 📝 致謝
 
