@@ -1,5 +1,24 @@
 # Agent Task Audit Log - Ample Windows Port
 
+## 📅 Session: 2026-01-24 (Session 8)
+
+### 🎯 Objective: Path robustness & UI Interactivity
+Focused on fixing "No such file" errors when launching custom ROM paths and improving the user experience for file selection in secondary tabs.
+
+### ✅ Key Achievements:
+
+1.  **Command Line Robustness**:
+    *   **Quote Handling**: Patched the `shlex` logic in `main.py` to handle Windows paths correctly. Manually stripping outer quotes ensures `subprocess` doesn't double-escape them, fixing the critical "No such file or directory" error when launching files with spaces in their path.
+
+2.  **File Selection UX**:
+    *   **A/V Path Selectors**: Implemented `mousePressEvent` on the A/V tab input fields (AVI, WAV, VGM). Clicking these text boxes now opens a native `QFileDialog` ("Save As") with appropriate extension filters, saving users from manual typing.
+    *   **Path Normalization**: Updated the "Shared Directory" directory selector to automatically normalize paths (e.g., converting `/` to `\`), ensuring visual consistency and compatibility with Windows command line expectations.
+
+### 🚀 Current Project Status
+The application is now highly resilient to typical Windows path complexities. Users can easily select output destinations and shared folders without worrying about path syntax errors.
+
+---
+
 ## 📅 Session: 2026-01-22 (Session 7)
 
 ### 🎯 Objective: User Freedom & flexible Command Control

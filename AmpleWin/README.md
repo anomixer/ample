@@ -47,6 +47,7 @@ This is a precision port of the macOS native [Ample](https://github.com/ksherloc
 *   **UI Enhancements**:
     *   **Adaptive Theme**: Real-time synchronization with Windows Light/Dark system theme.
     *   **Command Preview**: Real-time 4-line console preview to monitor exactly what parameters are being passed to MAME.
+    *   **Smart Path Handling**: Native file/folder selectors for A/V output and Shared Directories, with automatic path normalization (converting `/` to `\`) for maximum Windows compatibility.
 *   **Flexible Backend**: Full support for BGFX, OpenGL, Vulkan, and **DirectX 11/12** out of the box.
 
 ## 🛠️ Quick Start

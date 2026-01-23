@@ -967,11 +967,33 @@ class AmpleMainWindow(QMainWindow):
             row = QHBoxLayout()
             cb = QCheckBox(label)
             edit = QLineEdit()
-            edit.setPlaceholderText(f"/path/to/file.{label.split()[-1].lower()}")
+            ext = label.split()[-1].lower()
+            edit.setPlaceholderText(f"/path/to/file.{ext}")
             setattr(self, f"{attr_prefix}_check", cb)
             setattr(self, f"{attr_prefix}_path", edit)
             cb.stateChanged.connect(lambda: self.update_and_preview())
             edit.textChanged.connect(lambda: self.update_and_preview())
+
+            # Make the line edit clickable to open save file dialog
+            def on_click(event):
+                # Use current text directory if valid, else CWD
+                current_path = edit.text()
+                start_dir = current_path if current_path and os.path.dirname(current_path) else os.getcwd()
+                
+                file_path, _ = QFileDialog.getSaveFileName(
+                    self, 
+                    f"Select Output File ({label})", 
+                    start_dir, 
+                    f"{ext.upper()} Files (*.{ext});;All Files (*.*)"
+                )
+                if file_path:
+                    # Convert to native separators for Windows consistency
+                    file_path = os.path.normpath(file_path)
+                    edit.setText(file_path)
+                QLineEdit.mousePressEvent(edit, event)
+
+            edit.mousePressEvent = on_click
+
             row.addWidget(cb)
             row.addWidget(edit, 1) # Give path field more space
             av_layout.addLayout(row)
@@ -1000,7 +1022,7 @@ class AmpleMainWindow(QMainWindow):
         def share_dir_mouse_press(event):
             dir_path = QFileDialog.getExistingDirectory(self, "Select Shared Directory", self.share_dir_path.text() or os.getcwd())
             if dir_path:
-                self.share_dir_path.setText(dir_path)
+                self.share_dir_path.setText(os.path.normpath(dir_path))
             QLineEdit.mousePressEvent(self.share_dir_path, event)
             
         self.share_dir_path.mousePressEvent = share_dir_mouse_press
@@ -1956,7 +1978,15 @@ class AmpleMainWindow(QMainWindow):
         import shlex
         try:
             # posix=False is important for Windows paths (keeps backslashes)
-            args = shlex.split(cmd_str, posix=False)
+            # However, it preserves quotes in tokens, so we safely strip matching outer quotes.
+            raw_args = shlex.split(cmd_str, posix=False)
+            args = []
+            for arg in raw_args:
+                # Strip outer quotes if they match and are length >= 2
+                if len(arg) >= 2 and ((arg.startswith('"') and arg.endswith('"')) or (arg.startswith("'") and arg.endswith("'"))):
+                    args.append(arg[1:-1])
+                else:
+                    args.append(arg)
         except ValueError:
             # Fallback for unbalanced quotes
             args = cmd_str.split()
