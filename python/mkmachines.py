@@ -195,9 +195,10 @@ def find_machine_media(parent):
 		slotlist.add(slotname)
 
 	# print(slotlist)
-	for name in ("scsi","scsibus","scsi0", "scsi1"):
-		if name + ":4" in slotlist and name + ":3" not in slotlist:
-			media["cdrom"] = media.get("cdrom", 0) + 1
+	# 2026-01 -- no longer needed.
+	#for name in ("scsi","scsibus","scsi0", "scsi1"):
+	#	if name + ":4" in slotlist and name + ":3" not in slotlist:
+	#		media["cdrom"] = media.get("cdrom", 0) + 1
 
 
 	#print(media)
@@ -303,8 +304,9 @@ def find_media(parent, include_slots=False):
 
 
 	# scsibus:1 is special cd-rom
-	if name == "a2scsi":
-		media["cdrom"] = media.get("cdrom", 0) + 1
+	# 2026-01 -- no longer needed.
+	#if name == "a2scsi":
+	#	media["cdrom"] = media.get("cdrom", 0) + 1
 
 	if not media: return None
 	return media
@@ -345,6 +347,7 @@ DEVICE_MEDIA = {
 	'midiin': 'midiin',
 	'midiout': 'midiout',
 	'aplcdsc': 'cdrom',
+	'aplcdsc_ext': 'cdrom',
 	# 'null_modem': 'bitbanger',
 	# 'rs232_sync_io': 'bitbanger',
 	'a2romusr': 'rom',
@@ -371,6 +374,9 @@ DEVICE_MEDIA = {
 	"3dsqd": "floppy_3_5", # double sided, quad density
 
 	"3ssdd": "floppy_3_5", # single sided, single density
+
+	# lisa
+	'tw': 'floppy_5_25',
 
 }
 
@@ -609,6 +615,10 @@ def make_smartport(machine):
 
 		*['mb2:fdc_xt:fdc:' + str(x) for x in range(0,2)], # ibm pc
 		*["isa_fdc:fdc_xt:fdc:" + str(x) for x in range(0,2)],
+
+		# lisa
+		#*['fdc:' + str(x) + ":tw" for x in range(0,4)],
+
 	]
 
 

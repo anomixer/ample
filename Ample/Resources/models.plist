@@ -331,12 +331,6 @@
           <key>value</key>
           <string>uniap2pt</string>
         </dict>
-        <dict>
-          <key>description</key>
-          <string>Unitron AP II+ (Teclado Inteligente)</string>
-          <key>value</key>
-          <string>uniap2ti</string>
-        </dict>
       </array>
     </dict>
     <dict>
@@ -364,7 +358,7 @@
         </dict>
         <dict>
           <key>description</key>
-          <string>TK3000//e</string>
+          <string>TK3000 //e</string>
           <key>value</key>
           <string>tk3000</string>
         </dict>
@@ -418,7 +412,7 @@
           <key>description</key>
           <string>Laser 3000</string>
           <key>value</key>
-          <string>las3000</string>
+          <string>laser3k</string>
         </dict>
         <dict>
           <key>description</key>

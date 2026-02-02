@@ -56,6 +56,8 @@ mac_powerbook_children = [
 	"macpd210", "macpd230", "macpd250", "macpd270c", "macpd280", "macpd280c"
 ]
 
+lisa_children = ["lisa", "lisa2", "lisa210", "macxl"]
+
 atari_st_children = ["st", "megast"]
 
 tandy_children = [
@@ -114,6 +116,7 @@ TREE = [
 	("Macintosh (LC)", None, mac_lc_children),
 	("Macintosh (Portable)", None, mac_portable_children),
 	("Macintosh (PowerBook)", None, mac_powerbook_children),
+
 	("Acorn", None, acorn_children),
 	("Atari ST", "st", atari_st_children),
 	("Commodore", "c64", commodore_children),
@@ -122,6 +125,8 @@ TREE = [
 ]
 
 TREE_EXTRA = TREE + [
+	("Lisa", None, lisa_children),
+
 	("Amiga", None, amiga_children),
 	("DEC VT", None, dec_vt_children),
 	("DEC", None, dec_children),
