@@ -20,7 +20,7 @@
 | **初始機器選擇** | 支援預設書籤 (需手動設定) | **全自動持久化 (自動載入上次狀態)** | Mac 版需設為預設書籤，Windows 版則全自動開啟 |
 | **軟體清單效能** | 同步加載 (解析完整 XML) | **延遲遞增加載 (Deferred Loading)** | **重大優化**：切換機器秒開，搜尋才加載，效能更佳 |
 | **軟體搜尋 UI** | 標準列表 (Pop-up) | **智慧搜尋疊層 (Smart Overlay)** | 支援即時搜尋、全名顯示，且不推擠其他 UI 元素 |
-| **ROM 下載** | 支援自動下載 (補齊缺失) | **高效能 Failover 引擎** | **重大優化**：支援多伺服器切換 (mdk.cab + callapple) |
+| **ROM 下載** | 支援自動下載 (補齊缺失) | **高效能 Failover 引擎** | **重大優化**：支援多伺服器切換 (callapple + mdk.cab) |
 | **參數驗證** | 依賴 .plist 靜態定義 | **動態查詢驗證 (Live Validation)** | **重大優化**：自動與 MAME 比對，防止指令報錯崩潰 |
 | **Video 支援** | Metal / OpenGL / BGFX | **BGFX / OpenGL / Vulkan / D3D11 / D3D12** | 針對 Windows 環境最佳化，支援多代 DirectX 核心 |
 | **網路連線** | Apple VMNet Framework | **Npcap (WinPcap) / PCAP** | 使用標準 Npcap 即可上網 (無須權限修復) |
@@ -39,7 +39,7 @@
 *   **進階槽位模擬**：完整支援嵌套子槽位（如 SCSI 卡）。在選中卡片後自動初始化預設設備（如 ID 1 CD-ROM, ID 6 Hard Disk）。
 *   **ROM 管理**：
     *   **搜尋過濾**：ROM 管理器視窗中新增即時搜尋功能，方便快速查詢系統韌體。
-    *   **下載 Failover**：多伺服器自動獲取，主伺服器失敗時自動切換，確保下載成功。
+    *   **下載 Failover**：多伺服器自動獲取 (callapple + mdk.cab)，主伺服器失敗時自動切換，確保最高穩定性。
     *   **擴展支援**：新增 Macintosh PowerBook Duo 280, Pravetz 8C, TK3000 //e 等機型。
 *   **共享目錄 (Shared Directory)**：與 Mac 版功能完全對齊，支援透過 `-share_directory` 直接在主機與模擬器間共享檔案 (支援點擊輸入框瀏覽)。
 *   **VGM 錄音支援 (進階)**：由於現代 MAME 已移除 VGM 支援，AmpleWin 實作了強韌的自動化工作流，可下載並平行配置 **MAME-VGM Mod (v0.280)**。透過非破壞性的解壓技術（保留原本的 `mame.exe` 並另存為 `mame-vgm.exe`），在不影響主核心的情況下完美還原錄音功能。

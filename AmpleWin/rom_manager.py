@@ -59,8 +59,8 @@ class RomManager(QObject):
         self.resources_path = resources_path
         self.roms_dir = roms_dir
         self.base_urls = [
-            "https://mdk.cab/download/split/",
-            "https://www.callapple.org/roms/"
+            "https://www.callapple.org/roms/",
+            "https://mdk.cab/download/split/"
         ]
         self.rom_list = self.load_rom_list()
 

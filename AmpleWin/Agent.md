@@ -12,7 +12,7 @@ Focused on expanding the supported ROM library, implementing a robust failover d
     *   **Search Parity**: Fully synchronized hardware definitions with the latest macOS release, including secondary Pravetz models (`82`, `8M`).
 
 2.  **Robust ROM Download Failover**:
-    *   **Multi-Server Support**: Implemented a transparent failover mechanism in `rom_manager.py`. The downloader now prioritizes **mdk.cab** for high-speed acquisition and automatically falls back to **callapple.org** if the primary server is unreachable.
+    *   **Prioritized Multi-Server Support**: Implemented a transparent failover mechanism in `rom_manager.py`. The downloader now prioritizes **callapple.org** for maximum stability and automatically falls back to **mdk.cab** for Apple II clones and split sets unreachable on the primary server.
     *   **Status Integrity**: Fixed a bug in the download progress counter to ensure accurate success/failure reporting in the UI.
 
 3.  **Advanced Slot & Media Emulation**:

@@ -20,7 +20,7 @@ This is a precision port of the macOS native [Ample](https://github.com/ksherloc
 | **Machine Selection** | Supports Default Bookmark | **Full Session Persistence (Auto-Load)** | Auto-loads last used machine state without manual bookmarking |
 | **Software List Perf** | Synchronous Loading (Full XML) | **Deferred Loading** | **Major Optimization**: Instant machine switching, loads on search |
 | **Software Search UI** | Standard Pop-up List | **Smart Overlay Search** | Supports real-time search and full descriptive names without UI shifts |
-| **ROM Download** | Supports Auto-Download | **High-Speed Failover Engine** | **Major Optimization**: Multi-server failover (mdk.cab + callapple) |
+| **ROM Download** | Supports Auto-Download | **High-Speed Failover Engine** | **Major Optimization**: Multi-server failover (callapple + mdk.cab) |
 | **Validation** | Relies on Static .plist | **Live Parameter Validation** | **Major Optimization**: Validates against MAME to prevent launch crashes |
 | **Video Support** | Metal / OpenGL / BGFX | **BGFX / OpenGL / Vulkan / D3D11 / D3D12** | Optimized for Windows with multi-generational DirectX support |
 | **Networking** | Apple VMNet Framework | **Npcap (WinPcap) / PCAP** | Standard networking via Npcap (no root fix needed) |
@@ -39,7 +39,7 @@ This is a precision port of the macOS native [Ample](https://github.com/ksherloc
 *   **Advanced Slot Emulation**: Full support for nested sub-slots (e.g. SCSI cards). Automatically initializes default devices (CD-ROM/Hard Disk) upon card selection.
 *   **ROM Management**:
     *   **Search Filter**: Real-time searching in the ROM manager window to quickly find system firmwares.
-    *   **Download Failover**: Automatic multi-server acquisition with transparent failover for 100% reliability.
+    *   **Download Failover**: Automatic multi-server acquisition (callapple + mdk.cab) with transparent failover for maximum stability.
     *   **Extended Library**: Expanded support for PowerBook Duo 280, Pravetz 8C, TK3000, and more.
 *   **Shared Directory**: Full parity with the Mac version, allowing direct host-to-emulator file sharing via the `-share_directory` argument. (Includes click-to-browse support).
 *   **VGM Support (Advanced)**: Since modern MAME removed VGM support, AmpleWin implements a robust background workflow to download and configure the **MAME-VGM Mod (v0.280)**. It uses a non-destructive extraction process (`mame-vgm.exe`) to preserve your main MAME core while restoring high-fidelity music recording.
