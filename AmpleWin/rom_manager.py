@@ -9,9 +9,9 @@ class DownloadSignals(QObject):
     status = Signal(str)
 
 class DownloadWorker(QRunnable):
-    def __init__(self, url, dest_path, value):
+    def __init__(self, urls, dest_path, value):
         super().__init__()
-        self.url = url
+        self.urls = urls if isinstance(urls, list) else [urls]
         self.dest_path = dest_path
         self.value = value
         self.signals = DownloadSignals()
@@ -24,32 +24,44 @@ class DownloadWorker(QRunnable):
         self._is_cancelled = True
 
     def run(self):
-        try:
-            # For small files (ROMs), direct download is much faster than streaming
-            response = requests.get(self.url, headers=self.headers, timeout=20)
-            response.raise_for_status()
-            
-            os.makedirs(os.path.dirname(self.dest_path), exist_ok=True)
-            
-            if self._is_cancelled: return
-            
-            with open(self.dest_path, 'wb') as f:
-                f.write(response.content)
-            
-            self.signals.finished.emit(self.value, True)
-        except Exception as e:
-            if os.path.exists(self.dest_path):
-                try: os.remove(self.dest_path)
-                except: pass
-            self.signals.status.emit(f"Error: {str(e)}")
-            self.signals.finished.emit(self.value, False)
+        last_error = "No URLs provided"
+        for url in self.urls:
+            try:
+                if self._is_cancelled: return
+                
+                # For small files (ROMs), direct download is much faster than streaming
+                response = requests.get(url, headers=self.headers, timeout=20)
+                response.raise_for_status()
+                
+                os.makedirs(os.path.dirname(self.dest_path), exist_ok=True)
+                
+                if self._is_cancelled: return
+                
+                with open(self.dest_path, 'wb') as f:
+                    f.write(response.content)
+                
+                self.signals.finished.emit(self.value, True)
+                return # Success!
+            except Exception as e:
+                last_error = str(e)
+                continue # Try next URL
+        
+        # If we get here, all URLs failed
+        if os.path.exists(self.dest_path):
+            try: os.remove(self.dest_path)
+            except: pass
+        self.signals.status.emit(f"Error: {last_error}")
+        self.signals.finished.emit(self.value, False)
 
 class RomManager(QObject):
     def __init__(self, resources_path, roms_dir):
         super().__init__()
         self.resources_path = resources_path
         self.roms_dir = roms_dir
-        self.base_url = "https://www.callapple.org/roms/"
+        self.base_urls = [
+            "https://mdk.cab/download/split/",
+            "https://www.callapple.org/roms/"
+        ]
         self.rom_list = self.load_rom_list()
 
     def load_rom_list(self):
@@ -63,13 +75,19 @@ class RomManager(QObject):
         status_list = []
         for rom in self.rom_list:
             value = rom['value']
-            # Check for zip or 7z
+            # Check for zip, 7z or folder
             found = False
             for ext in ['zip', '7z']:
                 path = os.path.join(self.roms_dir, f"{value}.{ext}")
                 if os.path.exists(path):
                     found = True
                     break
+            
+            if not found:
+                # Check for unzipped folder
+                path = os.path.join(self.roms_dir, value)
+                if os.path.isdir(path):
+                    found = True
             
             status_list.append({
                 'value': value,

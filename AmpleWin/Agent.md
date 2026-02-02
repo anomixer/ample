@@ -1,5 +1,29 @@
 # Agent Task Audit Log - Ample Windows Port
 
+## 📅 Session: 2026-02-02 (Session 10)
+
+### 🎯 Objective: ROM Library Expansion & Advanced Slot Emulation
+Focused on expanding the supported ROM library, implementing a robust failover download mechanism, and perfecting nested slot configuration logic for SCSI peripherals.
+
+### ✅ Key Achievements:
+
+1.  **ROM Library & Search Expansion**:
+    *   **New System Support**: Added missing ROM definitions for **Macintosh PowerBook Duo 280/280c**, **Pravetz 8C**, and **TK3000 //e**.
+    *   **Search Parity**: Fully synchronized hardware definitions with the latest macOS release, including secondary Pravetz models (`82`, `8M`).
+
+2.  **Robust ROM Download Failover**:
+    *   **Multi-Server Support**: Implemented a transparent failover mechanism in `rom_manager.py`. The downloader now prioritizes **mdk.cab** for high-speed acquisition and automatically falls back to **callapple.org** if the primary server is unreachable.
+    *   **Status Integrity**: Fixed a bug in the download progress counter to ensure accurate success/failure reporting in the UI.
+
+3.  **Advanced Slot & Media Emulation**:
+    *   **SCSI Sub-Peripheral Detection**: Rewrote `aggregate_media` to recursively detect devices attached to slot cards (e.g., finding the CD-ROM and Hard Disk on an Apple IIgs SCSI card).
+    *   **Nested Slot Defaults**: Implemented automatic initialization for sub-slots. Plugging in a SCSI card now automatically populates its sub-slots with default devices (CD-ROM at ID 1, Hard Disk at ID 6), matching Mac parity.
+    *   **Sub-Slot UI Parity**: Updated the "Hamburger" popup to show all configurable sub-slots, not just those with media, giving users full control over complex hardware chains.
+    *   **Aggregator Optimization**: Refined the media scanner to ignore the global "device library" at the root level, preventing UI clutter and double-counting of unmapped drives.
+
+### 🚀 Current Project Status
+The Windows Port now offers superior hardware configuration capabilities. Complex SCSI and SmartPort chains are handled automatically, and the ROM acquisition system is more reliable than ever.
+
 ## 📅 Session: 2026-02-02 (Session 9)
 
 ### 🎯 Objective: Upstream Synchronization & Feature Parity (MAME 0.285)

@@ -4,7 +4,7 @@
 
 This is a precision port of the macOS native [Ample](https://github.com/ksherlock/ample) project to the Windows platform.
 
-![](screenshot-v0.284.png)
+![](screenshot-v0.285.png)
 
 > [!IMPORTANT]
 > **Current Version Support**: Updated to stay in sync with Ample (macOS) **v0.285** resources and **MAME 0.285**.
@@ -20,7 +20,7 @@ This is a precision port of the macOS native [Ample](https://github.com/ksherloc
 | **Machine Selection** | Supports Default Bookmark | **Full Session Persistence (Auto-Load)** | Auto-loads last used machine state without manual bookmarking |
 | **Software List Perf** | Synchronous Loading (Full XML) | **Deferred Loading** | **Major Optimization**: Instant machine switching, loads on search |
 | **Software Search UI** | Standard Pop-up List | **Smart Overlay Search** | Supports real-time search and full descriptive names without UI shifts |
-| **ROM Download** | Supports Auto-Download | **Multi-threaded Acceleration** | High-speed parallel downloading for missing system ROMs |
+| **ROM Download** | Supports Auto-Download | **High-Speed Failover Engine** | **Major Optimization**: Multi-server failover (mdk.cab + callapple) |
 | **Validation** | Relies on Static .plist | **Live Parameter Validation** | **Major Optimization**: Validates against MAME to prevent launch crashes |
 | **Video Support** | Metal / OpenGL / BGFX | **BGFX / OpenGL / Vulkan / D3D11 / D3D12** | Optimized for Windows with multi-generational DirectX support |
 | **Networking** | Apple VMNet Framework | **Npcap (WinPcap) / PCAP** | Standard networking via Npcap (no root fix needed) |
@@ -36,8 +36,11 @@ This is a precision port of the macOS native [Ample](https://github.com/ksherloc
     *   **Smart Filtering**: Automatically identifies supported media types (flop1, flop2, cass...) to match machine capabilities.
     *   **Search Overlay**: Integrated Mac-style search with auto-completion and full descriptive names.
     *   **Compatibility Check**: Options marked as `disabled` in property lists (e.g. incompatible SCSI cards) are now correctly grayed out and unselectable, matching Mac behavior.
+*   **Advanced Slot Emulation**: Full support for nested sub-slots (e.g. SCSI cards). Automatically initializes default devices (CD-ROM/Hard Disk) upon card selection.
 *   **ROM Management**:
-    *   **Search Filter**: Real-time searching in the ROM manager window to quickly find system firmwares. (New in v0.285)
+    *   **Search Filter**: Real-time searching in the ROM manager window to quickly find system firmwares.
+    *   **Download Failover**: Automatic multi-server acquisition with transparent failover for 100% reliability.
+    *   **Extended Library**: Expanded support for PowerBook Duo 280, Pravetz 8C, TK3000, and more.
 *   **Shared Directory**: Full parity with the Mac version, allowing direct host-to-emulator file sharing via the `-share_directory` argument. (Includes click-to-browse support).
 *   **VGM Support (Advanced)**: Since modern MAME removed VGM support, AmpleWin implements a robust background workflow to download and configure the **MAME-VGM Mod (v0.280)**. It uses a non-destructive extraction process (`mame-vgm.exe`) to preserve your main MAME core while restoring high-fidelity music recording.
 

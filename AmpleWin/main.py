@@ -147,8 +147,10 @@ class RomManagerDialog(QDialog):
         
         url_layout = QHBoxLayout()
         url_layout.addWidget(QLabel("URL"))
-        self.url_edit = QLineEdit(self.rom_manager.base_url)
-        url_layout.addWidget(self.url_edit)
+        self.url_combo = QComboBox()
+        self.url_combo.setEditable(True)
+        self.url_combo.addItems(self.rom_manager.base_urls)
+        url_layout.addWidget(self.url_combo)
         footer_layout.addLayout(url_layout)
         
         type_layout = QHBoxLayout()
@@ -211,7 +213,10 @@ class RomManagerDialog(QDialog):
         os.startfile(self.rom_manager.roms_dir)
 
     def download_missing(self):
-        self.rom_manager.base_url = self.url_edit.text()
+        primary_url = self.url_combo.currentText()
+        if not primary_url.endswith("/"):
+            primary_url += "/"
+            
         statuses = self.rom_manager.get_rom_status()
         self.to_download = [s for s in statuses if not s['exists']]
         if not self.to_download:
@@ -221,6 +226,7 @@ class RomManagerDialog(QDialog):
         self.progress_area.setVisible(True)
         self.download_total = len(self.to_download)
         self.download_finished_count = 0
+        self.download_failed_count = 0  # Reset failed count
         self.progress_bar.setMaximum(self.download_total)
         self.progress_bar.setValue(0)
         
@@ -233,22 +239,40 @@ class RomManagerDialog(QDialog):
         for current in self.to_download:
             value = current['value']
             ext = self.type_combo.currentText()
-            url = self.rom_manager.get_download_url(value, ext)
+            
+            # Prepare all possible URLs: Primary (UI) + others from the list
+            urls = []
+            primary_url = self.url_combo.currentText()
+            if not primary_url.endswith("/"): primary_url += "/"
+            urls.append(f"{primary_url}{value}.{ext}")
+            
+            for base in self.rom_manager.base_urls:
+                if base.strip("/") != primary_url.strip("/"):
+                    if not base.endswith("/"): base += "/"
+                    urls.append(f"{base}{value}.{ext}")
+            
             dest = os.path.join(self.rom_manager.roms_dir, f"{value}.{ext}")
             
-            worker = DownloadWorker(url, dest, value)
+            worker = DownloadWorker(urls, dest, value)
             # Signal handling for QRunnable via proxy object
             worker.signals.finished.connect(lambda v, s, w=worker: self.on_concurrent_download_finished(w, v, s))
             pool.start(worker)
 
     def on_concurrent_download_finished(self, worker, value, success):
         self.download_finished_count += 1
+        if not success:
+            self.download_failed_count = getattr(self, "download_failed_count", 0) + 1
+            
         self.progress_bar.setValue(self.download_finished_count)
         self.status_label.setText(f"Finished {self.download_finished_count}/{self.download_total}: {value}")
         
         if self.download_finished_count == self.download_total:
             self.progress_area.setVisible(False)
-            QMessageBox.information(self, "Finished", f"Successfully downloaded all {self.download_total} ROMs!")
+            failed = getattr(self, "download_failed_count", 0)
+            if failed > 0:
+                QMessageBox.warning(self, "Finished", f"Downloaded {self.download_total - failed} ROMs, but {failed} failed.\nSome files might not exist on the server.")
+            else:
+                QMessageBox.information(self, "Finished", f"Successfully downloaded all {self.download_total} ROMs!")
             self.refresh_list()
 
     def apply_dialog_theme(self):
@@ -348,50 +372,49 @@ class SubSlotPopup(QDialog):
         if 'slots' in self.data:
             for slot in self.data['slots']:
                 options = slot.get('options', [])
-                if any('media' in opt for opt in options):
-                    combo = QComboBox()
-                    combo.setFixedWidth(180)
-                    combo.setFixedHeight(22)
-                    combo.setProperty("appleStyle", "slot")
-                    
-                    slot_name = slot['name']
-                    combo.setObjectName(slot_name)
-                    for opt in options:
-                        combo.addItem(opt.get('description') or opt['value'] or "—None—", opt['value'])
+                combo = QComboBox()
+                combo.setFixedWidth(180)
+                combo.setFixedHeight(22)
+                combo.setProperty("appleStyle", "slot")
+                
+                slot_name = slot['name']
+                combo.setObjectName(slot_name)
+                for opt in options:
+                    combo.addItem(opt.get('description') or opt['value'] or "—None—", opt['value'])
 
-                    combo.blockSignals(True)
-                    val = self.current_slots.get(slot_name)
-                    idx = combo.findData(str(val))
-                    if idx < 0: idx = combo.findData(val)
-                    if idx >= 0: combo.setCurrentIndex(idx)
-                    combo.blockSignals(False)
-                    
-                    combo.currentIndexChanged.connect(self.on_changed)
-                    
-                    # Create container with combo and arrow overlay (matching main window)
-                    combo_widget = QWidget()
-                    combo_widget.setFixedSize(180, 22)
-                    combo.setParent(combo_widget)
-                    combo.move(0, 0)
-                    
-                    # Arrow label overlay - narrow blue like Mac
-                    arrow_label = QLabel("↕", combo_widget)
-                    arrow_label.setFixedSize(20, 20)
-                    arrow_label.move(160, 1)  # 160 + 20 = 180
-                    arrow_label.setAlignment(Qt.AlignCenter)
-                    arrow_label.setStyleSheet("""
-                        background-color: #3b7ee1;
-                        color: white;
-                        font-size: 12px;
-                        font-weight: bold;
-                        padding-bottom: 3px;
-                        border: none;
-                        border-top-right-radius: 3px;
-                        border-bottom-right-radius: 3px;
-                    """)
-                    arrow_label.setAttribute(Qt.WA_TransparentForMouseEvents)
-                    
-                    self.content_layout.addWidget(combo_widget, 0, Qt.AlignCenter)
+                combo.blockSignals(True)
+                val = self.current_slots.get(slot_name)
+                idx = combo.findData(str(val))
+                if idx < 0: idx = combo.findData(val)
+                if idx >= 0: combo.setCurrentIndex(idx)
+                combo.blockSignals(False)
+                
+                combo.currentIndexChanged.connect(self.on_changed)
+                
+                # Create container with combo and arrow overlay (matching main window)
+                combo_widget = QWidget()
+                combo_widget.setFixedSize(180, 22)
+                combo.setParent(combo_widget)
+                combo.move(0, 0)
+                
+                # Arrow label overlay - narrow blue like Mac
+                arrow_label = QLabel("↕", combo_widget)
+                arrow_label.setFixedSize(20, 20)
+                arrow_label.move(160, 1)  # 160 + 20 = 180
+                arrow_label.setAlignment(Qt.AlignCenter)
+                arrow_label.setStyleSheet("""
+                    background-color: #3b7ee1;
+                    color: white;
+                    font-size: 12px;
+                    font-weight: bold;
+                    padding-bottom: 3px;
+                    border: none;
+                    border-top-right-radius: 3px;
+                    border-bottom-right-radius: 3px;
+                """)
+                arrow_label.setAttribute(Qt.WA_TransparentForMouseEvents)
+                
+                self.content_layout.addWidget(combo_widget, 0, Qt.AlignCenter)
 
         self.main_layout.addWidget(self.container)
         self.apply_theme()
@@ -1096,39 +1119,48 @@ class AmpleMainWindow(QMainWindow):
     def initialize_default_slots(self, data, depth=0):
         if depth > 20: return
         
+        # Helper to find a shared definition
+        def find_global_def(name):
+            if not self.current_machine_data: return None
+            # 1. Search 'devices'
+            for d in self.current_machine_data.get('devices', []):
+                if d.get('name') == name: return d
+            # 2. Search 'slots'
+            for s in self.current_machine_data.get('slots', []):
+                if s.get('name') == name: return s
+            return None
+
         # 1. Process 'slots'
         if 'slots' in data:
             for slot in data['slots']:
                 slot_name = slot.get('name')
                 if not slot_name: continue
                 
-                if slot_name not in self.current_slots:
+                # Default selection
+                if not self.current_slots.get(slot_name):
                     best_val = None
-                    options = slot.get('options', [])
-                    
-                    # Target 1: Find ANY explicit default (can be empty string)
-                    for opt in options:
+                    for opt in slot.get('options', []):
                         if opt.get('default'):
                             best_val = opt.get('value')
                             break
-                    
-                    # Target 2: If NO option is marked default at all, do NOT force the first one.
-                    # We leave it unset so it doesn't clutter the command line or override MAME defaults.
-                    pass
-                    
                     if best_val is not None:
                         self.current_slots[slot_name] = best_val
 
-                # Always recurse into children of the current selection
-                current_val = self.current_slots.get(slot_name)
+                # Recursion into selected option
+                cur_val = self.current_slots.get(slot_name)
                 for opt in slot.get('options', []):
-                    # Use str() for safe comparison (ints vs strings in plist)
-                    if str(opt.get('value')) == str(current_val):
+                    if str(opt.get('value')) == str(cur_val):
+                        # A. Recurse into inline slots
                         self.initialize_default_slots(opt, depth + 1)
+                        # B. Recurse into devname definition
+                        if 'devname' in opt:
+                            m_dev = find_global_def(opt['devname'])
+                            if m_dev: self.initialize_default_slots(m_dev, depth + 1)
                         break
 
-        # 2. Process 'devices'
-        if 'devices' in data:
+        # 2. Process 'devices' - ONLY if not the root machine level
+        # At the root, 'devices' is a catalog of all possible device types.
+        if depth > 0 and 'devices' in data:
             for dev in data['devices']:
                 self.initialize_default_slots(dev, depth + 1)
 
@@ -1143,6 +1175,10 @@ class AmpleMainWindow(QMainWindow):
         self.refresh_ui()
 
     def refresh_ui(self):
+        # 0. Re-initialize defaults for any newly appeared slots/devices
+        if self.current_machine_data:
+            self.initialize_default_slots(self.current_machine_data)
+
         # 1. Clean the fixed layouts without destroying the frames themselves
         self.clear_grid(self.slots_layout)
         self.clear_grid(self.media_layout)
@@ -1393,39 +1429,45 @@ class AmpleMainWindow(QMainWindow):
     def get_total_media(self):
         total_media = {}
         
-        def aggregate_media(data, depth=0, is_root=False):
-            if depth > 10: return
+        def find_global_def(name):
+            if not self.current_machine_data: return None
+            for d in self.current_machine_data.get('devices', []):
+                if d.get('name') == name: return d
+            for s in self.current_machine_data.get('slots', []):
+                if s.get('name') == name: return s
+            return None
+
+        def aggregate_media(data, depth=0):
+            if depth > 15: return
             
-            # 1. Base media for this component
+            # 1. Media defined here
             if 'media' in data:
                 for k, v in data['media'].items():
-                    # Map common plist keys to UI labels
                     key = k
                     if k == 'cass': key = 'cassette'
                     total_media[key] = total_media.get(key, 0) + v
             
-            # 2. Recurse into selected slots
+            # 2. Recurse into slots
             if 'slots' in data:
                 for slot in data['slots']:
-                    selected_val = self.current_slots.get(slot['name'])
-                    for opt in slot['options']:
-                        if str(opt.get('value')) == str(selected_val):
-                            # Recurse into the option data (for nested slots/media)
+                    cur_val = self.current_slots.get(slot['name'])
+                    for opt in slot.get('options', []):
+                        if str(opt.get('value')) == str(cur_val):
+                            # A. Inline
                             aggregate_media(opt, depth + 1)
-                            # Also follow devname to global devices
+                            # B. Via devname
                             if 'devname' in opt:
-                                devname = opt['devname']
-                                machine_devs = self.current_machine_data.get('devices', [])
-                                m_dev = next((d for d in machine_devs if d.get('name') == devname), None)
+                                m_dev = find_global_def(opt['devname'])
                                 if m_dev: aggregate_media(m_dev, depth + 1)
                             break
             
-            # 3. Handle 'devices' (ONLY if not root machine, or specifically defined as active)
-            if not is_root and 'devices' in data:
+            # 3. Recurse into devices - ONLY if not the root machine level
+            if depth > 0 and 'devices' in data:
                 for dev in data['devices']:
                     aggregate_media(dev, depth + 1)
                             
-        aggregate_media(self.current_machine_data, is_root=True)
+        if self.current_machine_data:
+            aggregate_media(self.current_machine_data, depth=0)
 
         # UI FIX: Cleanup empty entries
         for k in ['hard', 'cdrom', 'cassette']:

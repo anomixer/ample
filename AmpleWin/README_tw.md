@@ -4,7 +4,7 @@
 
 這是一個將 macOS 原生 [Ample](https://github.com/ksherlock/ample) 專案精準移植至 Windows 平台的版本。
 
-![](screenshot-v0.284.png)
+![](screenshot-v0.285.png)
 
 > [!IMPORTANT]
 > **版本支援說明**：目前已同步支援至 Ample (macOS) **v0.285** 資源定義以及 **MAME 0.285** 核心。
@@ -20,7 +20,7 @@
 | **初始機器選擇** | 支援預設書籤 (需手動設定) | **全自動持久化 (自動載入上次狀態)** | Mac 版需設為預設書籤，Windows 版則全自動開啟 |
 | **軟體清單效能** | 同步加載 (解析完整 XML) | **延遲遞增加載 (Deferred Loading)** | **重大優化**：切換機器秒開，搜尋才加載，效能更佳 |
 | **軟體搜尋 UI** | 標準列表 (Pop-up) | **智慧搜尋疊層 (Smart Overlay)** | 支援即時搜尋、全名顯示，且不推擠其他 UI 元素 |
-| **ROM 下載** | 支援自動下載 (補齊缺失) | **支援自動下載 (多線程加速)** | 兩平台均可補齊韌體，Windows 版採並行下載更迅速 |
+| **ROM 下載** | 支援自動下載 (補齊缺失) | **高效能 Failover 引擎** | **重大優化**：支援多伺服器切換 (mdk.cab + callapple) |
 | **參數驗證** | 依賴 .plist 靜態定義 | **動態查詢驗證 (Live Validation)** | **重大優化**：自動與 MAME 比對，防止指令報錯崩潰 |
 | **Video 支援** | Metal / OpenGL / BGFX | **BGFX / OpenGL / Vulkan / D3D11 / D3D12** | 針對 Windows 環境最佳化，支援多代 DirectX 核心 |
 | **網路連線** | Apple VMNet Framework | **Npcap (WinPcap) / PCAP** | 使用標準 Npcap 即可上網 (無須權限修復) |
@@ -36,8 +36,11 @@
     *   **智慧過濾**：自動識別機器支援的媒體類型 (flop1, flop2, cass...)，確保啟動參數與原始硬體一致。
     *   **搜尋遮罩**：完整還原 Mac 版的搜尋介面，支援自動補完與完整網格化清單顯示。
     *   **相容性檢查**：自動偵測屬性表中的 `disabled` 標記（如不相容的 SCSI 卡），並正確以灰色顯示不可選，與 Mac 行為一致。
+*   **進階槽位模擬**：完整支援嵌套子槽位（如 SCSI 卡）。在選中卡片後自動初始化預設設備（如 ID 1 CD-ROM, ID 6 Hard Disk）。
 *   **ROM 管理**：
-    *   **搜尋過濾**：ROM 管理器視窗中新增即時搜尋功能，方便快速查詢系統韌體。(v0.285 新增)
+    *   **搜尋過濾**：ROM 管理器視窗中新增即時搜尋功能，方便快速查詢系統韌體。
+    *   **下載 Failover**：多伺服器自動獲取，主伺服器失敗時自動切換，確保下載成功。
+    *   **擴展支援**：新增 Macintosh PowerBook Duo 280, Pravetz 8C, TK3000 //e 等機型。
 *   **共享目錄 (Shared Directory)**：與 Mac 版功能完全對齊，支援透過 `-share_directory` 直接在主機與模擬器間共享檔案 (支援點擊輸入框瀏覽)。
 *   **VGM 錄音支援 (進階)**：由於現代 MAME 已移除 VGM 支援，AmpleWin 實作了強韌的自動化工作流，可下載並平行配置 **MAME-VGM Mod (v0.280)**。透過非破壞性的解壓技術（保留原本的 `mame.exe` 並另存為 `mame-vgm.exe`），在不影響主核心的情況下完美還原錄音功能。
 
