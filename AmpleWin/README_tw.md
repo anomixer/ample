@@ -7,9 +7,9 @@
 ![](screenshot-v0.284.png)
 
 > [!IMPORTANT]
-> **架構說明**：Windows Port 的程式碼是基於 Python 與 PySide6 (Qt) **完全重新開發且獨立運行**的。它與原始 macOS 版本（Objective-C）在程式碼層級上完全分開，開發過程中**未修改任何 macOS 版本的原始碼**，僅共享了最重要的機器定義資源（.plist）。
+> **版本支援說明**：目前已同步支援至 Ample (macOS) **v0.285** 資源定義以及 **MAME 0.285** 核心。
 
-## ⚔️ Ample (macOS) vs. AmpleWin (Windows) 完整對照表
+## 🍎 Ample (macOS) vs. AmpleWin (Windows) 完整對照表
 
 | 功能項目 | Ample (macOS 原生版) | AmpleWin (Windows 優化版) | 優化重點與說明 |
 | :--- | :--- | :--- | :--- |
@@ -36,6 +36,8 @@
     *   **智慧過濾**：自動識別機器支援的媒體類型 (flop1, flop2, cass...)，確保啟動參數與原始硬體一致。
     *   **搜尋遮罩**：完整還原 Mac 版的搜尋介面，支援自動補完與完整網格化清單顯示。
     *   **相容性檢查**：自動偵測屬性表中的 `disabled` 標記（如不相容的 SCSI 卡），並正確以灰色顯示不可選，與 Mac 行為一致。
+*   **ROM 管理**：
+    *   **搜尋過濾**：ROM 管理器視窗中新增即時搜尋功能，方便快速查詢系統韌體。(v0.285 新增)
 *   **共享目錄 (Shared Directory)**：與 Mac 版功能完全對齊，支援透過 `-share_directory` 直接在主機與模擬器間共享檔案 (支援點擊輸入框瀏覽)。
 *   **VGM 錄音支援 (進階)**：由於現代 MAME 已移除 VGM 支援，AmpleWin 實作了強韌的自動化工作流，可下載並平行配置 **MAME-VGM Mod (v0.280)**。透過非破壞性的解壓技術（保留原本的 `mame.exe` 並另存為 `mame-vgm.exe`），在不影響主核心的情況下完美還原錄音功能。
 

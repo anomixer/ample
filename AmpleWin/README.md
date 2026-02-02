@@ -7,9 +7,9 @@ This is a precision port of the macOS native [Ample](https://github.com/ksherloc
 ![](screenshot-v0.284.png)
 
 > [!IMPORTANT]
-> **Architecture Note**: The Windows Port codebase is **entirely rebuilt and runs independently** using Python and PySide6 (Qt). It is completely separated from the original macOS version (Objective-C) at the code level. No modifications were made to the macOS source code; only the essential machine definition resources (.plist) are shared.
+> **Current Version Support**: Updated to stay in sync with Ample (macOS) **v0.285** resources and **MAME 0.285**.
 
-## ⚔️ Ample (macOS) vs. AmpleWin (Windows) Comparison
+## 🍎 Ample (macOS) vs. AmpleWin (Windows) Comparison
 
 | Feature | Ample (macOS Native) | AmpleWin (Windows Optimized) | Optimization & Notes |
 | :--- | :--- | :--- | :--- |
@@ -36,6 +36,8 @@ This is a precision port of the macOS native [Ample](https://github.com/ksherloc
     *   **Smart Filtering**: Automatically identifies supported media types (flop1, flop2, cass...) to match machine capabilities.
     *   **Search Overlay**: Integrated Mac-style search with auto-completion and full descriptive names.
     *   **Compatibility Check**: Options marked as `disabled` in property lists (e.g. incompatible SCSI cards) are now correctly grayed out and unselectable, matching Mac behavior.
+*   **ROM Management**:
+    *   **Search Filter**: Real-time searching in the ROM manager window to quickly find system firmwares. (New in v0.285)
 *   **Shared Directory**: Full parity with the Mac version, allowing direct host-to-emulator file sharing via the `-share_directory` argument. (Includes click-to-browse support).
 *   **VGM Support (Advanced)**: Since modern MAME removed VGM support, AmpleWin implements a robust background workflow to download and configure the **MAME-VGM Mod (v0.280)**. It uses a non-destructive extraction process (`mame-vgm.exe`) to preserve your main MAME core while restoring high-fidelity music recording.
 

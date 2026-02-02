@@ -111,8 +111,14 @@ class RomManagerDialog(QDialog):
         self.seg_group.addButton(self.seg_all)
         self.seg_group.addButton(self.seg_missing)
         self.seg_group.buttonClicked.connect(self.on_filter_changed)
+
+        self.rom_search = QLineEdit()
+        self.rom_search.setPlaceholderText("Search ROMs...")
+        self.rom_search.setFixedWidth(200)
+        self.rom_search.textChanged.connect(self.refresh_list)
         
-        header_layout.addStretch()
+        header_layout.addWidget(self.rom_search)
+        header_layout.addSpacing(20)
         header_layout.addWidget(self.seg_all)
         header_layout.addWidget(self.seg_missing)
         header_layout.addStretch()
@@ -186,11 +192,15 @@ class RomManagerDialog(QDialog):
     def refresh_list(self):
         self.rom_list.clear()
         statuses = self.rom_manager.get_rom_status()
+        query = self.rom_search.text().lower()
         
         for s in statuses:
             if self.filter_mode == "missing" and s['exists']:
                 continue
                 
+            if query and query not in s['description'].lower() and query not in s['value'].lower():
+                continue
+
             item = QListWidgetItem(self.rom_list)
             widget = RomItemWidget(s['description'], s['value'], s['exists'])
             item.setSizeHint(widget.sizeHint())

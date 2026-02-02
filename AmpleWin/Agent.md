@@ -1,5 +1,31 @@
 # Agent Task Audit Log - Ample Windows Port
 
+## 📅 Session: 2026-02-02 (Session 9)
+
+### 🎯 Objective: Upstream Synchronization & Feature Parity (MAME 0.285)
+Focused on synchronizing with the upstream Ample (macOS) v0.285 release, updating the core emulator backend, and implementing new UI search capabilities.
+
+### ✅ Key Achievements:
+
+1.  **Upstream Repository Synchronization**:
+    *   **Merge & Push**: Successfully merged latest commits from `upstream/master` (ksherlock/ample).
+    *   **Resource Alignment**: Synchronized latest hardware definitions and slot configurations from original project.
+    *   **A2retroNET Integration**: Inherited support for a2retronet hardware, enabling up to 8 SmartPort disk images.
+
+2.  **MAME Core Update**:
+    *   **Version Upgrade**: Updated `mame_downloader.py` to point to the official **MAME 0.285** Windows x64 binary.
+    *   **Download Engine Parity**: Users can now auto-download the latest MAME core directly from the Settings menu.
+
+3.  **ROM Manager Enhancements**:
+    *   **Search Filter**: Implemented a real-time search field in the `RomManagerDialog` header (matching macOS feature parity).
+    *   **Filtering Logic**: Updated `refresh_list` to filter ROMs by description or shortcode, allowing users to quickly find specific system firmwares.
+
+### 🚀 Current Project Status
+The Windows Port is now fully synchronized with Ample (macOS) v0.285 resources. It supports the latest MAME core and offers improved ROM management tools.
+
+---
+
+
 ## 📅 Session: 2026-01-24 (Session 8)
 
 ### 🎯 Objective: Path robustness & UI Interactivity
