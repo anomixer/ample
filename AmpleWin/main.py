@@ -602,7 +602,12 @@ class AmpleMainWindow(QMainWindow):
         self.setMinimumSize(1000, 750)
         
         # Paths
-        self.app_dir = os.path.dirname(os.path.abspath(__file__))
+        if getattr(sys, 'frozen', False):
+            # If running as PyInstaller OneDir/OneFile bundle
+            self.app_dir = os.path.dirname(os.path.abspath(sys.executable))
+        else:
+            # If running from source (development)
+            self.app_dir = os.path.dirname(os.path.abspath(__file__))
         
         # Robustly find Resources path
         self.resources_path = None
