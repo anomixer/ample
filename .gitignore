@@ -9,8 +9,8 @@ embedded/mame-data.tgz
 __pycache__
 
 # Windows Port MAME binaries and runtime data
-mame_bin/
-ample_win/mame_bin/
+mame/
+ample_win/mame/
 nvram/
 cfg/
 diff/
