@@ -77,6 +77,7 @@
 | 檔案/目錄 | 說明 |
 | :--- | :--- |
 | **`AmpleWin.bat`** | **啟動腳本**。自動安裝依賴套件並執行主程式。 |
+| `build_exe.bat` | **打包腳本**。使用 PyInstaller 建立無須 Python 的可攜式 EXE。 |
 | `main.py` | 應用程式入口，處理 UI 渲染與主要邏輯。 |
 | `data_manager.py` | 負責解析 `.plist` 機器定義檔與 MAME `.xml` 軟體列表。 |
 | `mame_launcher.py` | MAME 指令建構器與執行序管理器。 |
@@ -84,6 +85,15 @@
 | `mame_downloader.py` | 自動化 MAME 核心與 VGM Mod 下載解壓工具。 |
 | `mame/` | 隔離的 MAME 工作目錄，存放執行檔、ROMs 與設定檔。 |
 | `Agent.md` | 開發日誌與任務記錄。 |
+
+## 📦 打包發布版 (Portable EXE)
+
+如果你想將程式打包成無需 Python 環境的可執行檔：
+
+1.  執行 `AmpleWin` 資料夾下的 `build_exe.bat`。
+2.  腳本會自動安裝 PyInstaller 並打包應用程式，同時複製必要的資源檔。
+3.  打包完成後的程式位於 `AmpleWin\dist\AmpleWin`。
+4.  將整個 `AmpleWin` 資料夾複製到任何位置即可執行，它是完全**可攜式 (Portable)** 的。
 
 ## 📝 致謝
 

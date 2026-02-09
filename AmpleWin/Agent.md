@@ -16,6 +16,11 @@ Focused on synchronizing the project with the latest upstream changes from `kshe
 2.  **AmpleWin Verification**:
     *   **Compatibility Verified**: Confirmed that `AmpleWin` correctly parses the new upstream `roms.plist` without errors.
     *   **ROM Status**: Validated that `macpd280` is now natively supported for auto-download via the new upstream definitions. Note: Custom definitions for *Pravetz* and *TK3000* are no longer in `roms.plist` but remain playable if ROMs are manually provided.
+3.  **Deployment & Distribution**:
+    *   **Refactor**: Renamed `mame_bin` to `mame` across the codebase for better standards compliance.
+    *   **Portable EXE**: Created `build_exe.bat` using **PyInstaller (OneDir)** to package the application into a standalone executable.
+    *   **Path Logic**: Updated `main.py` with robust `sys.frozen` detection to ensure resources and downloads work correctly in both Dev and Frozen environments.
+    *   **Documentation**: Added build instructions to READMEs.
 
 ### 🚀 Current Project Status
 The codebase is now in a "Clean Slate" state. `master` is fully synced with upstream, with `AmpleWin` serving as a strictly additive extension.

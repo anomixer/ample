@@ -77,6 +77,7 @@ To simulate networking hardware like **Uthernet II**, Windows requires [Npcap](h
 | File/Directory | Description |
 | :--- | :--- |
 | **`AmpleWin.bat`** | **Start Here**. Auto-setup script (installs Python deps & runs app). |
+| `build_exe.bat` | **Packaging**. Creates a `dist` portable EXE folder using PyInstaller. |
 | `main.py` | Application entry point, UI rendering, and event loop. |
 | `data_manager.py` | Parser for `.plist` machine definitions and MAME `.xml` software lists. |
 | `mame_launcher.py` | Command-line builder and process manager. |
@@ -84,6 +85,15 @@ To simulate networking hardware like **Uthernet II**, Windows requires [Npcap](h
 | `mame_downloader.py` | Automated MAME / VGM Mod downloader and extractor. |
 | `mame/` | Isolated directory for MAME executable, ROMs, and config files. |
 | `Agent.md` | Development log and session history. |
+
+## 📦 Building from Source (Portable EXE)
+
+If you want to create a standalone executable for distribution:
+
+1.  Run `build_exe.bat` in the `AmpleWin` directory.
+2.  The script will automatically install PyInstaller, package the application, and copy necessary resources.
+3.  The output will be in `AmpleWin\dist\AmpleWin`.
+4.  Copy the entire `AmpleWin` folder to any location. It is fully **portable** and does not require Python to run.
 
 ## 📝 Acknowledgments
 
