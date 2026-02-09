@@ -1,5 +1,25 @@
 # Agent Task Audit Log - Ample Windows Port
 
+
+## 📅 Session: 2026-02-09 (Session 11)
+
+### 🎯 Objective: Upstream Synchronization & Codebase Hygiene
+Focused on synchronizing the project with the latest upstream changes from `ksherlock/ample`, ensuring the `roms.plist` database is compliant with the official repository, and cleaning up diverging local branches.
+
+### ✅ Key Achievements:
+
+1.  **Full Upstream Sync**:
+    *   **Repository Alignment**: Merged latest `upstream/master` changes (4 new commits), bringing in the official fix for **PowerBook Duo 280 (`macpd280`)** and new definitions like **Epson RX-80 (`epson_rx80`)**.
+    *   **Deforking roms.plist**: Discarded local custom modifications to `Ample/Resources/roms.plist`. The file is now byte-for-byte identical to the upstream version, ensuring long-term maintainability.
+    *   **Branch Cleanup**: Removed the stale `fix-missing-roms` branch and closed the associated PR #44, as the upstream author has implemented the necessary fixes natively.
+
+2.  **AmpleWin Verification**:
+    *   **Compatibility Verified**: Confirmed that `AmpleWin` correctly parses the new upstream `roms.plist` without errors.
+    *   **ROM Status**: Validated that `macpd280` is now natively supported for auto-download via the new upstream definitions. Note: Custom definitions for *Pravetz* and *TK3000* are no longer in `roms.plist` but remain playable if ROMs are manually provided.
+
+### 🚀 Current Project Status
+The codebase is now in a "Clean Slate" state. `master` is fully synced with upstream, with `AmpleWin` serving as a strictly additive extension.
+
 ## 📅 Session: 2026-02-02 (Session 10)
 
 ### 🎯 Objective: ROM Library Expansion & Advanced Slot Emulation
