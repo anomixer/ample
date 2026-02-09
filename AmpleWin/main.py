@@ -1946,7 +1946,7 @@ class AmpleMainWindow(QMainWindow):
             self.check_for_mame(label)
 
     def download_mame(self, dialog, label):
-        target_dir = os.path.join(self.app_dir, "mame_bin")
+        target_dir = os.path.join(self.app_dir, "mame")
         self.settings_progress.setVisible(True)
         worker = MameDownloadWorker(target_dir)
         self.active_workers.append(worker)
@@ -1964,7 +1964,7 @@ class AmpleMainWindow(QMainWindow):
         if success:
             QMessageBox.information(self, "Download Complete", 
                 f"MAME installer has been opened.\n\n"
-                f"1. In the installer, extract to: {self.app_dir}\\mame_bin\n"
+                f"1. In the installer, extract to: {self.app_dir}\\mame\n"
                 f"2. Once extraction is done, click 'Select MAME' to confirm.")
             
             # Immediate check in case it's already there
@@ -1976,7 +1976,7 @@ class AmpleMainWindow(QMainWindow):
     def check_for_mame(self, label=None):
         """Helper to check standard paths and update UI."""
         potential_paths = [
-            os.path.join(self.app_dir, "mame_bin", "mame.exe"),
+            os.path.join(self.app_dir, "mame", "mame.exe"),
             os.path.join(self.app_dir, "mame.exe"),
         ]
         
