@@ -47,7 +47,7 @@
 ### 🪟 Windows 專屬優化與增強
 *   **效能優化**：
     *   **併發下載系統**：多線程加速 ROM 下載，大幅縮短初始配置時間。
-    *   **零雜訊 Workspace**：所有的 MAME 產出紀錄 (nvram, cfg, sta) 嚴格隔離在 `mame_bin` 內。
+    *   **零雜訊 Workspace**：所有的 MAME 產出紀錄 (nvram, cfg, sta) 嚴格隔離在 `mame` 內。
     *   **延遲載入 (Deferred Loading)**：大幅優化軟體清單載入速度，切換機器與搜尋皆可瞬間反應。
 *   **UI 增強**：
     *   **適配主題**：即時同步 Windows 系統的深/淺色模式。
@@ -82,7 +82,7 @@
 | `mame_launcher.py` | MAME 指令建構器與執行序管理器。 |
 | `rom_manager.py` | 系統 ROM 的管理與多執行緒下載引擎。 |
 | `mame_downloader.py` | 自動化 MAME 核心與 VGM Mod 下載解壓工具。 |
-| `mame_bin/` | 隔離的 MAME 工作目錄，存放執行檔、ROMs 與設定檔。 |
+| `mame/` | 隔離的 MAME 工作目錄，存放執行檔、ROMs 與設定檔。 |
 | `Agent.md` | 開發日誌與任務記錄。 |
 
 ## 📝 致謝

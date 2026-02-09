@@ -37,7 +37,7 @@ class VgmPostProcessWorker(QThread):
         # Wait for MAME to exit
         self.process.wait()
         
-        # MAME-VGM mod saves as <romname>_0.vgm in the working directory (mame_bin)
+        # MAME-VGM mod saves as <romname>_0.vgm in the working directory (mame)
         # Note: sometimes it might be <machine>_0.vgm
         src_file = os.path.join(self.src_dir, f"{self.rom_name}_0.vgm")
         if os.path.exists(src_file) and self.dest_path:
@@ -623,7 +623,7 @@ class AmpleMainWindow(QMainWindow):
         print(f"DEBUG: app_dir: {self.app_dir}")
         print(f"DEBUG: resolved resources_path: {self.resources_path}")
         
-        mame_bin_dir = os.path.abspath(os.path.join(self.app_dir, "mame_bin"))
+        mame_bin_dir = os.path.abspath(os.path.join(self.app_dir, "mame"))
         self.roms_dir = os.path.join(mame_bin_dir, "roms")
         mame_exe = os.path.join(mame_bin_dir, "mame.exe")
         hash_path = os.path.join(mame_bin_dir, "hash")

@@ -47,7 +47,7 @@ This is a precision port of the macOS native [Ample](https://github.com/ksherloc
 ### 🪟 Windows-Specific Optimizations
 *   **Performance**:
     *   **Concurrent Downloading**: Multi-threaded system for high-speed ROM acquisition.
-    *   **Clean Workspace**: All MAME side-car files (nvram, cfg, sta) are strictly isolated within the `mame_bin` directory.
+    *   **Clean Workspace**: All MAME side-car files (nvram, cfg, sta) are strictly isolated within the `mame` directory.
     *   **Deferred XML Loading**: Major optimization for instant machine switching and search response.
 *   **UI Enhancements**:
     *   **Adaptive Theme**: Real-time synchronization with Windows Light/Dark system theme.
@@ -82,7 +82,7 @@ To simulate networking hardware like **Uthernet II**, Windows requires [Npcap](h
 | `mame_launcher.py` | Command-line builder and process manager. |
 | `rom_manager.py` | Management and multi-threaded downloading of system ROMs. |
 | `mame_downloader.py` | Automated MAME / VGM Mod downloader and extractor. |
-| `mame_bin/` | Isolated directory for MAME executable, ROMs, and config files. |
+| `mame/` | Isolated directory for MAME executable, ROMs, and config files. |
 | `Agent.md` | Development log and session history. |
 
 ## 📝 Acknowledgments
