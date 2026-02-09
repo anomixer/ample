@@ -36,9 +36,6 @@ if %errorlevel% neq 0 (
 echo.
 echo [2/2] Copying necessary assets...
 
-rem Ensure dist/AmpleWin/mame exists
-if not exist "dist\AmpleWin\mame" mkdir "dist\AmpleWin\mame"
-
 rem Copy Resource directory from ..\Ample\Resources
 rem We need to copy ..\Ample\Resources to dist\AmpleWin\Ample\Resources
 if not exist "dist\AmpleWin\Ample\Resources" mkdir "dist\AmpleWin\Ample\Resources"
