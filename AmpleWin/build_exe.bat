@@ -18,6 +18,10 @@ if %errorlevel% neq 0 (
 )
 
 echo.
+echo [0/2] Generating Application Icon...
+python make_icon.py
+
+echo.
 echo [1/2] Converting main.py to EXE...
 rem --noconfirm: overwrite output directory without asking
 rem --onedir: create a directory with exe and dependencies (easier for debugging)
@@ -25,7 +29,7 @@ rem --windowed: no console window (for final release)
 rem --name: name of the executable
 rem --clean: clean cache
 
-pyinstaller --noconfirm --onedir --windowed --clean --name "AmpleWin" main.py
+pyinstaller --noconfirm --onedir --windowed --clean --name "AmpleWin" --icon "app_icon.ico" main.py
 
 if %errorlevel% neq 0 (
     echo [ERROR] Build failed!
