@@ -6,6 +6,8 @@ A slightly more user-friendly front-end for using MAME as an Apple II emulator. 
 
 > Linux users might want to check out [AmpleLinux](https://github.com/ksherlock/ample/tree/master/AmpleLinux) (thanks to anomixer).
 
+> NEW!! If you want to play Ample directly from web browser, please check out [AmpleWeb](https://github.com/anomixer/ample/tree/ampleweb/AmpleWeb).
+
 
 ![](screenshots/2021-07-01.png)
 
