@@ -111,3 +111,6 @@ chmod +x build_elf.sh
 *   原始 macOS 版本開發者: [Kelvin Sherlock](https://github.com/ksherlock)
 *   **Windows Port 開發者: anomixer + Antigravity**
 *   **Linux Port**：由 anomixer + Antigravity 基於 AmpleWin 改編
+
+---
+*免責聲明：AmpleLinux 是一個獨立的開源專案，與 Apple Inc. 或本專案提及之任何其他公司均無任何隸屬、授權、維護或背書關係。所有產品及公司名稱均為其各自持有人的商標™或註冊®商標。*

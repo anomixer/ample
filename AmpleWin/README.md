@@ -103,3 +103,6 @@ If you want to create a standalone executable for distribution:
 
 *   Original macOS version developer: [Kelvin Sherlock](https://github.com/ksherlock)
 *   **Windows Port Developers: anomixer + Antigravity**: Dedicated to providing the ultimate Apple II / Macintosh emulation experience on Windows.
+
+---
+*Disclaimer: AmpleWin is an independent open-source project and is not affiliated with, authorized, maintained, or endorsed by Apple Inc. or any other respective companies mentioned. All product and company names are trademarks™ or registered® trademarks of their respective holders.*

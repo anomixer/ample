@@ -103,3 +103,6 @@
 
 *   原始 macOS 版本開發者: [Kelvin Sherlock](https://github.com/ksherlock)
 *   **Windows Port 開發者: anomixer + Antigravity**：致力於在 Windows 生態系中提供最極致的 Apple II / Macintosh 模擬體驗。
+
+---
+*免責聲明：AmpleWin 是一個獨立的開源專案，與 Apple Inc. 或本專案提及之任何其他公司均無任何隸屬、授權、維護或背書關係。所有產品及公司名稱均為其各自持有人的商標™或註冊®商標。*

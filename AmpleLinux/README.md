@@ -122,3 +122,6 @@ The app auto-detects GNOME and KDE dark/light themes. If your desktop environmen
 *   Original macOS version developer: [Kelvin Sherlock](https://github.com/ksherlock)
 *   **Windows Port Developers: anomixer + Antigravity**
 *   **Linux Port**: Adapted from AmpleWin by anomixer + Antigravity
+
+---
+*Disclaimer: AmpleLinux is an independent open-source project and is not affiliated with, authorized, maintained, or endorsed by Apple Inc. or any other respective companies mentioned. All product and company names are trademarks™ or registered® trademarks of their respective holders.*
