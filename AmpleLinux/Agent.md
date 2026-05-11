@@ -1,6 +1,25 @@
 # Agent Task Audit Log - Ample Linux Port
 
 
+## 📅 Session: 2026-05-11 (Session 4)
+
+### 🎯 Objective: Slot Configuration Alignment & Bug Fix
+Synchronized slot initialization logic with AmpleWin to fix the issue where "None" selections were being overwritten by defaults.
+
+### ✅ Key Achievements:
+1.  **"None-Aware" Slot Initialization**:
+    *   Applied the `slot_name not in self.current_slots` fix to `main.py`.
+    *   Ensured that manual "None" selections (empty string) are preserved across UI refreshes.
+2.  **Cross-Platform Feature Parity**:
+    *   Aligned slot behavior with the Windows and Web ports.
+3.  **Stability**:
+    *   Verified that nested slot defaults still load correctly for new cards.
+
+### 🚀 Current Project Status
+The Linux port now shares the same robust slot configuration logic as the Windows version, ensuring a consistent user experience.
+
+---
+
 ## 📅 Session: 2026-03-02 (Session 3)
 
 ### 🎯 Objective: Upstream Version Tracking & Documentation Maintenance

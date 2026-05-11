@@ -1,6 +1,26 @@
 # Agent Task Audit Log - Ample Windows Port
 
 
+## 📅 Session: 2026-05-11 (Session 14)
+
+### 🎯 Objective: Slot Configuration Parity & "None" Persistence
+Resolved a long-standing issue where slots with default equipment could not be set to "None" because UI refreshes would force-revert them to defaults.
+
+### ✅ Key Achievements:
+1.  **"None-Aware" Slot Initialization**: 
+    *   Modified `initialize_default_slots` in `main.py` to use key existence checks (`if slot_name not in self.current_slots`) instead of truthiness checks.
+    *   This ensures that an empty string selection (`""` or "None") is respected as a deliberate user choice and not overwritten by defaults.
+2.  **Cross-Platform Alignment**:
+    *   Coordinated this fix across **AmpleWin** and **AmpleLinux**.
+    *   Verified that **AmpleWeb** already correctly handled this logic due to its Object-based option finding mechanism.
+3.  **Nested Slot Preservation**:
+    *   Ensured that newly appeared sub-slots (e.g., when plugging in a SCSI or CFFA2 card) still automatically load their default devices, maintaining high usability.
+
+### 🚀 Current Project Status
+Slot configuration behavior is now fully consistent across Windows, Linux, and Web ports, accurately respecting "None" selections while preserving automated nested configurations.
+
+---
+
 ## 📅 Session: 2026-03-02 (Session 13)
 
 ### 🎯 Objective: Upstream Version Bump & Documentation Maintenance
