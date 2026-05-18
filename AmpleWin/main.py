@@ -1121,6 +1121,16 @@ class AmpleMainWindow(QMainWindow):
             # 不再於切換時立即填充軟體清單 (延遲加載以優化效能)
             if hasattr(self, 'sw_list'): self.sw_list.clear()
 
+    def get_default_slots(self):
+        if not self.current_machine_data:
+            return {}
+        old_slots = self.current_slots
+        self.current_slots = {}
+        self.initialize_default_slots(self.current_machine_data)
+        defaults = self.current_slots
+        self.current_slots = old_slots
+        return defaults
+
     def initialize_default_slots(self, data, depth=0):
         if depth > 20: return
         
@@ -1769,8 +1779,20 @@ class AmpleMainWindow(QMainWindow):
             # Positional arguments allow MAME's Software List manager to resolve them.
             soft_list_args.append(self.selected_software)
             
+        # Get defaults recursively
+        defaults = self.get_default_slots()
+        
+        # Filter slots: if a slot is set to empty "", only pass it to MAME if its default value was NOT empty
+        active_slots = {}
+        for slot_name, option in self.current_slots.items():
+            if option == "":
+                default_val = defaults.get(slot_name, "")
+                if default_val == "":
+                    continue
+            active_slots[slot_name] = option
+
         # Build base args
-        args = self.launcher.build_args(self.selected_machine, self.current_slots, filtered_media, soft_list_args)
+        args = self.launcher.build_args(self.selected_machine, active_slots, filtered_media, soft_list_args)
         
         # Add UI Video options for preview
         win_mode = self.win_mode.currentText()
