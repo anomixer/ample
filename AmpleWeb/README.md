@@ -2,6 +2,7 @@
 
 [English](README.md) | [繁體中文](README_tw.md)
 
+
 This is a pure browser-based port of the macOS native [Ample](https://github.com/ksherlock/ample) project, bringing the premium Apple II and Macintosh emulation experience to any modern web browser. Powered by WASM and React. Enjoy the nostalgic 198x-199x computing experience directly in your browser with zero installation of apps or ROM files.
 
 ![](screenshot.png)
@@ -35,6 +36,7 @@ This is a pure browser-based port of the macOS native [Ample](https://github.com
 *   **Personalized UI**: Full support for **Dark/Light Mode** switching, faithfully replicating the macOS native visual aesthetics.
 *   **Slot Configuration Consistency**: Improved slot initialization logic to respect "None" (empty) selections across UI refreshes, matching the high standards of the native macOS and Windows/Linux ports.
 ### 🌐 Web-Specific Features
+*   **Background Run & Audio Support**: The emulator keeps running and playing sound in the background when the browser window loses focus. (Requires keeping the page in a separate, non-minimized window; do not minimize the window or switch to other tabs in the same browser window, as browsers automatically suspend background tabs).
 *   **Premium Collapsible Drawers**: Both left (Machine List) and right (Settings Panel) lanes utilize smooth CSS hardware-accelerated transitions and absolute floating drawer pull handles (`◀` / `▶`) that automatically nest into sidebar inner edges when expanded.
 *   **Fully Resizable Workspace**: The interface features a flexible layout. Drag the horizontal divider in the right settings panel to seamlessly adjust the vertical height of the System Settings and Machine Configuration frames.
 *   **Active Workspace Resizing**: Synchronized manual drag-to-resize operations with MAME's WASM engine. Adjusting the left sidebar or right settings panel width dynamically dispatches `resize` events to ensure real-time viewport and pointer coordination mapping alignment.

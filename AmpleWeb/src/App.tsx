@@ -741,6 +741,32 @@ function App() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Prevent MAME WASM from auto-pausing when browser window loses focus or goes to background.
+  useEffect(() => {
+    const preventPause = (e: Event) => {
+      // Intercept blur and visibilitychange events aimed at window, document or the game canvas
+      // to keep the Emscripten/SDL2 engine running when the browser window is unfocused.
+      if (
+        e.target === window || 
+        e.target === document || 
+        (e.target instanceof HTMLElement && e.target.id === 'canvas')
+      ) {
+        e.stopImmediatePropagation()
+        console.log(`[Background Support] Blocked "${e.type}" event to prevent emulator auto-pause.`)
+      }
+    }
+
+    window.addEventListener('blur', preventPause, true)
+    document.addEventListener('visibilitychange', preventPause, true)
+
+    return () => {
+      window.removeEventListener('blur', preventPause, true)
+      document.removeEventListener('visibilitychange', preventPause, true)
+    }
+  }, [])
+
+  // Force MAME to recalculate window/canvas scaling when sidebars toggle
+
   // Force MAME to recalculate window/canvas scaling when sidebars toggle
   useEffect(() => {
     // Wait a brief moment for DOM layout to settle
@@ -842,7 +868,7 @@ function App() {
     // Handle window resize events
     const onWindowResize = () => {
       if (videoSettings.windowMode === 'fit' || videoSettings.windowMode === 'integer-fit') {
-        applyScale(true)
+        applyScale(false)
       }
     }
 
