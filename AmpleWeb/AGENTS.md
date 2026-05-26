@@ -3,6 +3,11 @@
 ## Status: Active
 ## Project: AmpleWeb (MAME WASM Frontend)
 
+### 📅 2026-05-26 Updates
+- **MAME UI 與 MAME Menu 按鈕文字居中對齊 (介面樣式微調)**：
+    - **按鈕居中樣式**：在 `App.tsx` 中為 `MAME UI (ScrlLk)` 與 `MAME Menu (Tab)` 兩個按鈕元件的 inline style 中添加了 `justifyContent: 'center'`，以修正全域 `.btn` 樣式所產生的靠左對齊問題。
+    - **清除 HTML 空白節點**：將按鈕內部的標籤及文字內容改寫至同一行（例如 `>⌨️ MAME UI (ScrlLk)</button>`），避免多餘的換行及空格引起文字在 Flex 佈局下的偏移。
+
 ### 📅 2026-05-25 Updates
 - **Background Run & Audio Support**:
     - **Focus lost event interception**: Registered capturing-phase event listeners on `window` for `blur` and `document` for `visibilitychange`. By calling `e.stopImmediatePropagation()`, we prevent these events from reaching the Emscripten/SDL2 core, stopping the emulator from auto-pausing and muting when the browser window loses focus.
