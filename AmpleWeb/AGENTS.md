@@ -4,9 +4,9 @@
 ## Project: AmpleWeb (MAME WASM Frontend)
 
 ### 📅 2026-05-26 Updates
-- **MAME UI 與 MAME Menu 按鈕文字居中對齊 (介面樣式微調)**：
-    - **按鈕居中樣式**：在 `App.tsx` 中為 `MAME UI (ScrlLk)` 與 `MAME Menu (Tab)` 兩個按鈕元件的 inline style 中添加了 `justifyContent: 'center'`，以修正全域 `.btn` 樣式所產生的靠左對齊問題。
-    - **清除 HTML 空白節點**：將按鈕內部的標籤及文字內容改寫至同一行（例如 `>⌨️ MAME UI (ScrlLk)</button>`），避免多餘的換行及空格引起文字在 Flex 佈局下的偏移。
+- **MAME UI and MAME Menu Button Text Alignment Fix**:
+    - **Button Text Centering**: Added `justifyContent: 'center'` to the inline style of the `MAME UI (ScrlLk)` and `MAME Menu (Tab)` button elements in `App.tsx` to correct the left-alignment issue caused by the global `.btn` style class.
+    - **Whitespace Cleanup**: Consolidated button tags and text content onto single lines (e.g. `>⌨️ MAME UI (ScrlLk)</button>`) to eliminate intermediate whitespace/newline nodes that offset text centering under Flexbox layouts.
 
 ### 📅 2026-05-25 Updates
 - **Background Run & Audio Support**:
