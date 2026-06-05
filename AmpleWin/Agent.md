@@ -2,18 +2,23 @@
 
 ## 📅 Session: 2026-06-05 (Session 16)
 
-### 🎯 Objective: PowerBook Compatibility Fallback & Downloader Acceleration
-Addressed upstream MAME 0.288 C++ late-binding bug causing crashes on EASC audio chip Macs, and accelerated the VGM Mod download.
+### 🎯 Objective: MAME v0.288 Upgrade, PowerBook Fallbacks & AmpleWeb Synchronization
+Addressed upstream MAME 0.288 EASC crash bugs, compiled the v0.288-patched Wasm core, and synchronized all 0.288 machine plists and ROM mapping to AmpleWeb frontend.
 
 ### ✅ Key Achievements:
-1.  **EASC Crash Fallback Mechanism**:
-    *   Added automatic detection for affected PowerBook models (`macpb160`, `macpb180`, `macpb165`, `macpb165c`, `macpb180c`).
-    *   Implements seamless redirect to `mame_0287.exe` or `mame-vgm.exe` (v0.280) if present in the executable folder.
-    *   Provides user warning with options to auto-download MAME v0.280 (VGM Mod) fallback, force launch under 0.288, or cancel.
-2.  **Downloader Optimization**:
-    *   Switched VGM Mod download mirror to prioritize `mirror.ghproxy.com` GitHub proxy for faster global asset retrieval.
-3.  **ROM Manager Priority Check**:
-    *   Reordered ROM base URLs to prioritize `mdk.cab` over `callapple.org`. This guarantees the latest split set ROMs (like `dragon32` with split files) are downloaded correctly, solving the missing files crash on MAME 0.288+.
+1.  **MAME v0.288 Wasm Compile & Deploy**:
+    *   Integrated memory export and EASC patch in `c:\dev\MameWasm` and compiled production Wasm core (`mameample.js` / `mameample.wasm`).
+    *   Compressed and deployed `mame.js` / `mame.wasm.gz` to both `AmpleWeb` and `ampleweb-ai`.
+2.  **0.288 Machine Configuration Sync**:
+    *   Copied 251 updated `.plist` machine profiles from Core to both web projects.
+    *   Expanded `DRIVER_ROM_MAP` in both `App.tsx` from 158 to 248 entries to fully support new 0.288 models (Amiga A1000/A2000/A500, Atari ST, Lisa, etc.).
+3.  **EASC Crash Fallback (Core)**:
+    *   Added automatic detection and v0.280/v0.287 fallback launcher mechanism for EASC audio chip Macs in AmpleWin/Linux.
+4.  **UI Slots Layout Ordering Parity (Core)**:
+    *   Reordered rendering in `AmpleWin` and `AmpleLinux` slots panel. Now, ROM slots (`rom` or `romsize` or description `ROM`/`ROM/RAM`) are rendered directly after the RAM slot, positioning `Disk Drives` properly in the 3rd slot when ROM configuration exists.
+5.  **Downloader Optimization & SCSI Fix**:
+    *   Prioritized `mdk.cab` split server in `rom_manager.py` and `rom_manager_cli.py` to prevent missing file errors on 0.288+.
+    *   Verified SCSI CD-ROM 2x speed fallback `cdrom_2x` mappings on both frontends to resolve media mount bugs.
 
 ---
 

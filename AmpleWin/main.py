@@ -1215,6 +1215,12 @@ class AmpleMainWindow(QMainWindow):
                 self.add_slot_row(self.slots_layout, ram_slot)
                 self.slots_layout.addSpacing(5)
 
+            # 1.5 ROM Group
+            rom_slot = next((s for s in self.current_machine_data['slots'] if s['name'] in ('rom', 'romsize') or s.get('description') in ('ROM', 'ROM/RAM')), None)
+            if rom_slot:
+                self.add_slot_row(self.slots_layout, rom_slot)
+                self.slots_layout.addSpacing(5)
+
             # 2. Disk Drives - EXACTLY same structure as add_slot_row
             # Mac hides popup button but it still takes up space. Hamburger at far right.
             dd_slot = next((s for s in self.current_machine_data['slots'] if s.get('description') == 'Disk Drives'), None)
@@ -1253,19 +1259,12 @@ class AmpleMainWindow(QMainWindow):
                 
                 self.slots_layout.addLayout(row)
 
-
-
-
-
-
-
-
-
-
-
             # 3. All other slots
+            excluded_names = {'ramsize'}
+            if rom_slot:
+                excluded_names.add(rom_slot['name'])
             for slot in self.current_machine_data['slots']:
-                if slot['name'] != 'ramsize' and slot.get('description') != 'Disk Drives':
+                if slot['name'] not in excluded_names and slot.get('description') != 'Disk Drives':
                     self.add_slot_row(self.slots_layout, slot)
             
         self.slots_layout.addStretch()
