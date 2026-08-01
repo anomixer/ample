@@ -1,5 +1,23 @@
 # Agent Task Audit Log - Ample Linux Port
 
+## 📅 Session: 2026-08-02 (Session 7)
+
+### 🎯 Objective: Upstream MAME v0.289 Synchronization
+Synchronized AmpleLinux with upstream `ksherlock/ample` v0.289 release and updated machine `.plist` configuration definitions.
+
+### ✅ Key Achievements:
+1.  **PowerBook Native Launch (EASC Bug Fixed)**:
+    *   Removed `macpb160`, `macpb165`, `macpb165c`, `macpb180`, `macpb180c` fallback prompt mechanism in `main.py`, as MAME 0.289 officially resolved the EASC audio chip crash bug.
+2.  **ROM Manager Priority & Dragon32/Laser Series Fixes**:
+    *   Reordered download servers in `rom_manager.py` to prioritize CallApple (`https://www.callapple.org/roms/`) with MDK (`https://mdk.cab/download/split/`) as backup failover.
+    *   Integrated `patch_dragon32()` in `DownloadWorker` to auto-merge missing modern MAME 0.289 split ROM files (`dragon_data_ltd_1-0.ic18`, `dragon_data_ltd_1-1.ic17`) when downloading `dragon32.zip`.
+    *   Expanded `custom_roms` fallback array to include Laser 128 series (`las128ex`, `las128e2`, `laser128`, `laser128o`, `laser2c`), ensuring seamless auto-download even if omitted from upstream `roms.plist`.
+3.  **Upstream MAME 0.289 Alignment**:
+    *   Verified `.plist` machine profile definitions (251 files) updated to MAME 0.289.
+    *   Validated compatibility with local MAME 0.289 binaries and slot options.
+
+---
+
 ## 📅 Session: 2026-06-05 (Session 6)
 
 ### 🎯 Objective: PowerBook Compatibility Fallback & Downloader Parity

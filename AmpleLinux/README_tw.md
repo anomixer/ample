@@ -28,8 +28,8 @@
 *   **視覺精準度**：精準支援 **Window 1x-4x** 模式，並內建機器專屬的比例啟發邏輯。
 *   **軟體資料庫**：智慧過濾、搜尋遮罩、相容性檢查。
 *   **進階槽位模擬**：完整支援嵌套子槽位（如 SCSI 卡），並具備穩健的設備初始化與「空」(None) 選項持久化邏輯。
-*   **ROM 管理**：即時搜尋、多伺服器 Failover 下載、擴展韌體庫。
-    *   **相容性降級 (Compatibility Fallback)**：自動偵測受 MAME 0.288 EASC 晶片崩潰 Bug 影響的 PowerBook 機型（如 `macpb160` 等），自動切換至本地的 `mame_0287` 或 `mame-vgm`；若無備用執行檔，則會彈窗提供引導按鈕，協助使用者開啟官方 SDL Wiki 取得適用於該 Linux 發行版的舊版 MAME 執行檔。
+*   **ROM 管理**：即時搜尋、CallApple 優先／MDK 備用 Failover 下載、`dragon32` 自動補丁及 Laser 128 全系列韌體庫相容性。
+    *   **全面相容性**：MAME 0.289 官方已修正 PowerBook 機型（如 `macpb160`, `macpb180` 等）的 EASC 晶片崩潰 Bug，所有 PowerBook 機型現可使用最新 MAME 核心直接原生啟動。
 *   **共享目錄**：與 Mac 版功能完全對齊 (`-share_directory`)。
 
 ### 🐧 Linux 專屬功能

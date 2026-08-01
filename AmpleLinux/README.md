@@ -28,8 +28,8 @@ This is a port of the macOS native [Ample](https://github.com/ksherlock/ample) p
 *   **Visual Precision**: Precision support for **Window 1x-4x** modes with machine-specific aspect ratio heuristics.
 *   **Software Library**: Smart filtering, search overlay, and compatibility checking.
 *   **Advanced Slot Emulation**: Full support for nested sub-slots (e.g. SCSI cards) with robust default device initialization and persistence for "None" selections.
-*   **ROM Management**: Real-time search, multi-server failover download, extended library.
-    *   **Compatibility Fallback**: Automatically detects affected Macintosh PowerBook models (`macpb160` etc.) that suffer from the MAME 0.288 EASC crash bug. Seamlessly switches to a local MAME 0.287 (`mame_0287`) or VGM Mod (`mame-vgm`) if available, or guides users to the MAME SDL Supported Platforms Wiki page to retrieve older packages.
+*   **ROM Management**: Real-time search, CallApple primary / MDK failover downloads, `dragon32` auto-patching, and full Laser 128 series library compatibility.
+    *   **Full Native Compatibility**: Upstream MAME 0.289 resolved the EASC audio chip crash bug on Macintosh PowerBook models (`macpb160`, `macpb180`, etc.), enabling seamless native launch across all PowerBook systems.
 *   **Shared Directory**: Full parity with `-share_directory` argument.
 
 ### 🐧 Linux-Specific Features
