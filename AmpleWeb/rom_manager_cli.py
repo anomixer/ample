@@ -32,7 +32,52 @@ class RomManagerCLI:
             print(f"Error: {self.plist_path} not found.")
             return []
         with open(self.plist_path, 'rb') as f:
-            return plistlib.load(f)
+            roms = plistlib.load(f)
+        
+        custom_roms = [
+            {'value': 'tk3000', 'description': 'TK3000 //e'},
+            {'value': 'prav8c', 'description': 'Pravetz 8C'},
+            {'value': 'prav82', 'description': 'Pravetz 82'},
+            {'value': 'prav8m', 'description': 'Pravetz 8M'},
+            {'value': 'prav8d', 'description': 'Pravetz 8D'},
+            {'value': 'las128ex', 'description': 'Laser 128EX'},
+            {'value': 'las128e2', 'description': 'Laser 128EX/2'},
+            {'value': 'laser128', 'description': 'Laser 128'},
+            {'value': 'laser128o', 'description': 'Laser 128 (Original)'},
+            {'value': 'laser2c', 'description': 'Laser 2c'}
+        ]
+        existing_values = {r.get('value') for r in roms if 'value' in r}
+        for cr in custom_roms:
+            if cr['value'] not in existing_values:
+                roms.append(cr)
+        return roms
+
+    def patch_dragon32(self, dest_path):
+        try:
+            mdk_url = "https://mdk.cab/download/split/dragon32.zip"
+            resp = requests.get(mdk_url, headers=self.headers, timeout=20)
+            if resp.status_code == 200 and len(resp.content) > 100:
+                import zipfile, io
+                existing_data = open(dest_path, 'rb').read()
+                z_existing = zipfile.ZipFile(io.BytesIO(existing_data))
+                z_mdk = zipfile.ZipFile(io.BytesIO(resp.content))
+                
+                existing_names = set(z_existing.namelist())
+                mdk_names = set(z_mdk.namelist())
+                
+                missing = mdk_names - existing_names
+                if missing:
+                    out_buf = io.BytesIO()
+                    with zipfile.ZipFile(out_buf, 'w', zipfile.ZIP_DEFLATED) as zout:
+                        for item in z_existing.infolist():
+                            zout.writestr(item, z_existing.read(item.filename))
+                        for item in z_mdk.infolist():
+                            if item.filename in missing:
+                                zout.writestr(item, z_mdk.read(item.filename))
+                    with open(dest_path, 'wb') as f:
+                        f.write(out_buf.getvalue())
+        except Exception as e:
+            print(f"Warning: dragon32 patch failed: {e}")
 
     def download_rom(self, value):
         dest_path = os.path.join(self.roms_dir, f"{value}.zip")
@@ -49,6 +94,8 @@ class RomManagerCLI:
                     os.makedirs(self.roms_dir, exist_ok=True)
                     with open(dest_path, 'wb') as f:
                         f.write(response.content)
+                    if value == 'dragon32':
+                        self.patch_dragon32(dest_path)
                     return f"OK (zip from {base_url.split('/')[2]})", value
             except Exception:
                 continue
