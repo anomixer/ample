@@ -3,6 +3,16 @@
 ## Status: Active
 ## Project: AmpleWeb (MAME WASM Frontend)
 
+### 📅 2026-08-02 Updates
+- **MAME WASM Core Upgrade (MAME 0.289-patched)**:
+    - **Upgraded MAME Base**: Upgraded the universal WASM emulator core from MAME 0.287/0.288 to **MAME 0.289** (built via MameWasm factory with `-Oz` and LTO optimization).
+    - **PowerBook EASC Native Fix**: Retained official upstream MAME 0.289 C++ fixes for ASC/EASC audio devices, enabling native boot for all PowerBook 30 models without fallback prompts.
+    - **Maintained RAM Offset WASM Exports**: Preserved `_emscripten_get_main_ram_wasm_offset` and `_emscripten_get_aux_ram_wasm_offset` exports for direct Apple II RAM DMA access.
+- **0.289 Machine Profile & ROM Manager Parity**:
+    - **Configuration Plist Sync**: Synchronized all 251 updated machine profile `.plist` files from `Ample/Resources/` to `public/resources/`.
+    - **ROM Downloader Priorities**: Updated `rom_manager_cli.py` to prioritize CallApple with MDK failover, added `dragon32` auto-patcher (`patch_dragon32()`), and included Laser 128 series (`las128ex`, etc.) fallback definitions.
+    - **Global Version Constant**: Updated `MAME_VERSION` in `src/App.tsx` to `'0.289'`.
+
 ### 📅 2026-06-05 Updates
 - **MAME WASM Core Upgrade (MAME 0.288-patched)**:
     - **Upgraded MAME Base**: Upgraded the universal WASM emulator core from MAME 0.287 to **MAME 0.288**.

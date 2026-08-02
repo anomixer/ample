@@ -55,14 +55,14 @@ function injectPortsIntoXml(xml: string, ports: Record<string, string>): string 
 /**
  * Unified MAME engine version.
  */
-const MAME_VERSION = '0.288'
+const MAME_VERSION = '0.289'
 
 /**
  * Emulator type → WASM file info.
  * Maps Ample's emulator values to the correct WASM file and MAME driver.
  */
 const EMULATOR_WASM_MAP: Record<string, { wasm: string; js: string; driver: string }> = {
-  // Universal MAME 0.288 engine (supports all 150+ variants)
+  // Universal MAME 0.289 engine (supports all 150+ variants)
   mame: { wasm: 'mame.wasm.gz', js: 'mame.js', driver: 'apple2e' },
 }
 
