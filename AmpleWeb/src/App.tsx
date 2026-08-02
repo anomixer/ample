@@ -1314,7 +1314,7 @@ function App() {
    * Maps machine driver names to emulator WASM files.
    */
   function getEmulatorForMachine(machineName: string): string | null {
-    // We now use a unified MAME 0.288 engine ('mame.wasm') for all machines
+    // We now use a unified MAME 0.289 engine ('mame.wasm') for all machines
     // to ensure ROM mapping consistency across all 150+ variants.
     const families = [
       'apple', 'ace', 'basis', 'cec', 'agat', 'prav8', 'laser', 'tk2000', 'f108', 'space84', 'albert', // Apple II / Clones
