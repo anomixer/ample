@@ -3,6 +3,25 @@
 ## Status: Active
 ## Project: AmpleWeb (MAME WASM Frontend)
 
+### 📅 2026-08-24 Updates
+- **Code-Quality Refactor (P0–P3)**:
+    - **P0 Bug Fixes**:
+        - **Duplicate `-resolution` flag**: `doLaunch` previously pushed `-resolution` twice (once inside `buildMameArgs`, once in `extraArgs`), relying on MAME's "last value wins". Now the real resolution is passed directly to `buildMameArgs` and the duplicate is removed, so the flag is emitted exactly once.
+        - **Broken `_wasmExists` / `wasmTarget`**: `_wasmExists` mixed sync/async (returned `false` before the HEAD request resolved), so `wasmTarget` was always `'none'` and the footer display never showed. Removed the broken helper; `wasmTarget` is now a stable `'mame'` constant.
+        - **StrictMode double-launch race**: The one-shot init effect ran twice under React StrictMode, risking two concurrent `init()`/`doLaunch()` runs. Added a `hasInitializedRef` guard so the async init body executes only once.
+    - **P1 Deduplication**: Extracted four shared helpers, replacing repeated inline blocks (behavior-preserving):
+        - `parseExtraArgs(raw)` → `{ ports, remaining }` (both `extra`-param parsers).
+        - `readVirtualCfg(driver)` → `string | null` (the three VFS rel/abs/cwd `.cfg` read paths).
+        - `downloadMediaFromUrl(url, unzip, log)` → `File | null` (the two fetch→CORS-proxy→File→unzip blocks).
+        - `fetchRomWithFallback(filename, driver, romSettings, log)` (the two ROM fetch→download-server-fallback blocks; slot-ROM misses stay non-error).
+    - **P2 Dead-Code Cleanup**: Removed all commented-out dead blocks (`_handleTestLaunch`, `_stripTorrentZip`, `_parseZip`, `_createZip`, `_crc32Table`/`crc32`) and simplified `getEmulatorForMachine` (both branches returned `'mame'`; dropped the dead `families` check).
+    - **P3 Consistency**:
+        - `store.ts`: typed the `setVideoSettings` updater (was `state: any`) and replaced the `...state` spread in `partialize` with an explicit field list (no longer serializes setter functions).
+        - Replaced `statusText.includes('longer time'/'may not work')` string-matching with a derived `statusKind` value for badge / progress-label styling.
+        - **JSZip moved from CDN to npm**: `import JSZip from 'jszip'` (added `jszip` + `@types/jszip`), removed the `index.html` CDN `<script>` and the `window.JSZip` / `@ts-ignore` usage, and typed the zip entry as `JSZip.JSZipObject`. Trade-off: the JS bundle grows (~+100 kB) to gain offline support, version pinning, and no third-party network dependency.
+        - Removed leftover `[App.tsx]` debug `console.log`s in `doLaunch`.
+    - **Result**: `src/App.tsx` reduced from 3753 to ~3385 lines; `tsc -b && vite build` passes clean.
+
 ### 📅 2026-08-02 Updates
 - **MAME WASM Core Upgrade (MAME 0.289-patched)**:
     - **Upgraded MAME Base**: Upgraded the universal WASM emulator core from MAME 0.287/0.288 to **MAME 0.289** (built via MameWasm factory with `-Oz` and LTO optimization).

@@ -10,11 +10,13 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "jszip": "^3.10.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@types/jszip": "^3.4.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.3.4",
